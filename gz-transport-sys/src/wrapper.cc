@@ -33,7 +33,10 @@ Node* nodeCreate(const char* partition) {
   auto node = new Node();
   gz::transport::NodeOptions ops;
   if (partition != nullptr) {
-    ops.SetPartition(partition);
+    if (!ops.SetPartition(partition)) {
+      delete node;
+      return nullptr;
+    }
   }
   node->impl = std::make_unique<gz::transport::Node>(ops);
   return node;
@@ -52,6 +55,10 @@ StringVec* nodeTopicList(const Node* node) {
 Publisher* nodeAdvertise(Node* node, const char* topic, const char* msgType) {
   auto pub = new Publisher();
   pub->impl = node->impl->Advertise(topic, msgType);
+  if (!pub->impl.Valid()) {
+    delete pub;
+    return nullptr;
+  }
   pub->msgType = msgType;
   return pub;
 }
