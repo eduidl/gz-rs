@@ -52,6 +52,12 @@ StringVec* nodeTopicList(const Node* node) {
   return vec;
 }
 
+StringVec* nodeAdvertisedTopics(const Node* node) {
+  auto vec = new StringVec();
+  vec->inner = node->impl->AdvertisedTopics();
+  return vec;
+}
+
 Publisher* nodeAdvertise(Node* node, const char* topic, const char* msgType) {
   auto pub = new Publisher();
   pub->impl = node->impl->Advertise(topic, msgType);
@@ -72,6 +78,12 @@ void publisherDestroy(Publisher** pub) {
     delete *pub;
     *pub = nullptr;
   }
+}
+
+StringVec* nodeSubscribedTopics(const Node* node) {
+  auto vec = new StringVec();
+  vec->inner = node->impl->SubscribedTopics();
+  return vec;
 }
 
 bool nodeSubscribe(Node* node,

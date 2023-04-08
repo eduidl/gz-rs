@@ -11,18 +11,21 @@ typedef struct Publisher Publisher;
 typedef struct String String;
 typedef struct StringVec StringVec;
 
+// Node
 Node* nodeCreate(const char* partition);
 void nodeDestroy(Node**);
 
 // Topic
 StringVec* nodeTopicList(const Node*);
 
-// Publisher
+// Topic Pub
+StringVec* nodeAdvertisedTopics(const Node*);
 Publisher* nodeAdvertise(Node* node, const char* topic, const char* msgType);
 bool publisherPublish(Publisher* pub, const char* msg);
 void publisherDestroy(Publisher**);
 
-// Subscriber
+// Topic Sub
+StringVec* nodeSubscribedTopics(const Node* node);
 bool nodeSubscribe(Node* node,
                    const char* topic,
                    void (*_callback)(const char*, size_t, const char*, void*),
@@ -31,6 +34,8 @@ bool nodeUnsubscribe(Node* node, const char* topic);
 
 // Service
 StringVec* nodeServiceList(const Node*);
+
+// Service Client
 bool nodeRequest(Node* node,
                  const char* topic,
                  const char* req,

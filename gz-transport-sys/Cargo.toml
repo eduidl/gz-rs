@@ -1,6 +1,6 @@
 [package]
 name = "gz-transport-sys"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.60.0"
@@ -11,6 +11,7 @@ license = "Apache-2.0"
 keywords = ["gazebo", "robotics", "simulation"]
 categories = ["external-ffi-bindings"]
 links = "gz-transport12"
+exclude = [".clang-format"]
 
 [build-dependencies]
 cc = "1.0"

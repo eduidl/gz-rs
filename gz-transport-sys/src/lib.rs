@@ -29,11 +29,15 @@ pub type SubscriberCallback =
     unsafe extern "C" fn(*const c_char, usize, *const c_char, *mut c_void);
 
 extern "C" {
+    // Node
     pub fn nodeCreate(partition: *const c_char) -> *mut Node;
     pub fn nodeDestroy(node: &mut *mut Node);
 
+    // Topic
     pub fn nodeTopicList(node: &Node) -> *mut StringVec;
 
+    // Topci Pub
+    pub fn nodeAdvertisedTopics(node: &Node) -> *mut StringVec;
     pub fn nodeAdvertise(
         node: &mut Node,
         topic: *const c_char,
@@ -42,6 +46,8 @@ extern "C" {
     pub fn publisherPublish(publisher: &mut Publisher, data: *const c_char) -> bool;
     pub fn publisherDestroy(publisher: &mut *mut Publisher);
 
+    // Topic Sub
+    pub fn nodeSubscribedTopics(node: &Node) -> *mut StringVec;
     pub fn nodeSubscribe(
         node: &mut Node,
         topic: *const c_char,
@@ -50,7 +56,10 @@ extern "C" {
     ) -> bool;
     pub fn nodeUnsubscribe(node: &mut Node, topic: *const c_char) -> bool;
 
+    // Service
     pub fn nodeServiceList(node: &Node) -> *mut StringVec;
+
+    // Service Client
     pub fn nodeRequest(
         node: &mut Node,
         topic: *const c_char,
