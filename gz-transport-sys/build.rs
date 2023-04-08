@@ -1,8 +1,12 @@
-use std::error::Error;
+use std::{env, error::Error};
 
 use pkg_config::Config;
 
 fn main() -> Result<(), Box<dyn Error>> {
+    if env::var("DOCS_RS").is_ok() {
+        return Ok(());
+    }
+
     let library = Config::new().probe("gz-transport12")?;
 
     for path in library.link_paths.iter() {
