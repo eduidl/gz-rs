@@ -1,7 +1,6 @@
 # gz-rs
 
-Rust binding to Gazebo (not Gazebo Classic)
-Currently only supports Gazebo Garden and Linux
+Rust binding for Gazebo (not Gazebo Classic). Currently, the only supported combination is Gazebo Garden and Linux.
 
 ## Dependencies
 

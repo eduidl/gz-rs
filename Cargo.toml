@@ -1,17 +1,18 @@
 [package]
 name = "gz"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.60.0"
 description = "Gazebo client library"
+readme = "README.md"
 repository = "https://github.com/eduidl/gz-rs"
 license = "Apache-2.0"
 keywords = ["gazebo", "robotics", "simulation"]
 
 [dependencies]
 gz-msgs = { path = "./gz-msgs", version = "0.1.0" }
-gz-transport-sys = { path = "./gz-transport-sys", version = "0.0.3" }
+gz-transport-sys = { path = "./gz-transport-sys", version = "0.1.0" }
 log = "0.4"
 protobuf = "3"
 
