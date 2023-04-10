@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Friction)
 pub struct Friction {
     // message fields
@@ -261,6 +262,7 @@ impl ::protobuf::reflect::ProtobufValue for Friction {
 /// Nested message and enums of message `Friction`
 pub mod friction {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Friction.Torsional)
     pub struct Torsional {
         // message fields
@@ -458,6 +460,7 @@ pub mod friction {
     /// Nested message and enums of message `Torsional`
     pub mod torsional {
         #[derive(PartialEq,Clone,Default,Debug)]
+        #[derive(::gz_msgs_derive::GzMessage)]
         // @@protoc_insertion_point(message:gz.msgs.Friction.Torsional.ODE)
         pub struct ODE {
             // message fields

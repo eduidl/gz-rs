@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedComponent)
 pub struct SerializedComponent {
     // message fields
@@ -184,6 +185,7 @@ impl ::protobuf::reflect::ProtobufValue for SerializedComponent {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedEntity)
 pub struct SerializedEntity {
     // message fields
@@ -343,6 +345,7 @@ impl ::protobuf::reflect::ProtobufValue for SerializedEntity {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedState)
 pub struct SerializedState {
     // message fields
@@ -485,6 +488,7 @@ impl ::protobuf::reflect::ProtobufValue for SerializedState {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedStep)
 pub struct SerializedStep {
     // message fields

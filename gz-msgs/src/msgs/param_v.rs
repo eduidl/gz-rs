@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Param_V)
 pub struct Param_V {
     // message fields

@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Visual)
 pub struct Visual {
     // message fields
@@ -463,6 +464,7 @@ impl ::protobuf::reflect::ProtobufValue for Visual {
 /// Nested message and enums of message `Visual`
 pub mod visual {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Visual.Meta)
     pub struct Meta {
         // message fields

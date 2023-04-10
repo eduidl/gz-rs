@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Hydra)
 pub struct Hydra {
     // message fields
@@ -189,6 +190,7 @@ impl ::protobuf::reflect::ProtobufValue for Hydra {
 /// Nested message and enums of message `Hydra`
 pub mod hydra {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Hydra.Paddle)
     pub struct Paddle {
         // message fields

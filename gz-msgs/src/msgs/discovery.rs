@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Discovery)
 pub struct Discovery {
     // message fields
@@ -396,6 +397,7 @@ pub mod discovery {
         }
     }
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Discovery.Flags)
     pub struct Flags {
         // message fields
@@ -536,6 +538,7 @@ pub mod discovery {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Discovery.Subscriber)
     pub struct Subscriber {
         // message fields
@@ -658,6 +661,7 @@ pub mod discovery {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Discovery.Publisher)
     pub struct Publisher {
         // message fields
@@ -1026,6 +1030,7 @@ pub mod discovery {
             }
         }
         #[derive(PartialEq,Clone,Default,Debug)]
+        #[derive(::gz_msgs_derive::GzMessage)]
         // @@protoc_insertion_point(message:gz.msgs.Discovery.Publisher.MessagePublisher)
         pub struct MessagePublisher {
             // message fields
@@ -1202,6 +1207,7 @@ pub mod discovery {
         }
 
         #[derive(PartialEq,Clone,Default,Debug)]
+        #[derive(::gz_msgs_derive::GzMessage)]
         // @@protoc_insertion_point(message:gz.msgs.Discovery.Publisher.ServicePublisher)
         pub struct ServicePublisher {
             // message fields

@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.OccupancyGrid)
 pub struct OccupancyGrid {
     // message fields
@@ -188,6 +189,7 @@ impl ::protobuf::reflect::ProtobufValue for OccupancyGrid {
 /// Nested message and enums of message `OccupancyGrid`
 pub mod occupancy_grid {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.OccupancyGrid.MapMetaInfo)
     pub struct MapMetaInfo {
         // message fields

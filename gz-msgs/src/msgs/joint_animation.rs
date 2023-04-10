@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.JointAnimation)
 pub struct JointAnimation {
     // message fields
@@ -207,6 +208,7 @@ impl ::protobuf::reflect::ProtobufValue for JointAnimation {
 /// Nested message and enums of message `JointAnimation`
 pub mod joint_animation {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.JointAnimation.Joint)
     pub struct Joint {
         // message fields

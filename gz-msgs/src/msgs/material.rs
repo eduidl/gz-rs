@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Material)
 pub struct Material {
     // message fields
@@ -373,6 +374,7 @@ impl ::protobuf::reflect::ProtobufValue for Material {
 /// Nested message and enums of message `Material`
 pub mod material {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Material.Script)
     pub struct Script {
         // message fields
@@ -513,6 +515,7 @@ pub mod material {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Material.PBR)
     pub struct PBR {
         // message fields

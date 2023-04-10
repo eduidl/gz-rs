@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedEntityMap)
 pub struct SerializedEntityMap {
     // message fields
@@ -202,6 +203,7 @@ impl ::protobuf::reflect::ProtobufValue for SerializedEntityMap {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedStateMap)
 pub struct SerializedStateMap {
     // message fields
@@ -379,6 +381,7 @@ impl ::protobuf::reflect::ProtobufValue for SerializedStateMap {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.SerializedStepMap)
 pub struct SerializedStepMap {
     // message fields

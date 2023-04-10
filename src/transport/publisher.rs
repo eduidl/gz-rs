@@ -5,22 +5,22 @@ use std::{
     ptr::NonNull,
 };
 
-use gz_msgs::Message;
+use gz_msgs::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::Node;
 
 /// A publisher of a topic
-pub struct Publisher<T: Message> {
+pub struct Publisher<T: GzMessage> {
     r#impl: NonNull<ffi::Publisher>,
     buf: Vec<u8>,
     _phantom: PhantomData<T>,
 }
 
-impl<T: Message> Publisher<T> {
+impl<T: GzMessage> Publisher<T> {
     pub(crate) fn new(node: &mut Node, topic: &str) -> Option<Self> {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
-        let ctopic_type = CString::new(T::NAME).expect("Invalid type name");
+        let ctopic_type = CString::new(T::GZ_TYPE_NAME).expect("Invalid type name");
 
         Some(Self {
             r#impl: unsafe {
@@ -59,13 +59,13 @@ impl<T: Message> Publisher<T> {
     }
 }
 
-impl<T: Message> Debug for Publisher<T> {
+impl<T: GzMessage> Debug for Publisher<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Publisher").finish()
     }
 }
 
-impl<T: Message> Drop for Publisher<T> {
+impl<T: GzMessage> Drop for Publisher<T> {
     fn drop(&mut self) {
         unsafe {
             ffi::publisherDestroy(&mut self.r#impl.as_ptr());

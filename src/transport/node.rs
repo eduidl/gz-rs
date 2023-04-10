@@ -9,7 +9,7 @@ use std::{
 };
 
 use crossbeam_channel::{bounded, Receiver, TryRecvError};
-use gz_msgs::Message;
+use gz_msgs::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::{
@@ -130,7 +130,7 @@ impl Node {
     /// - If the topic type name is not a valid ASCII string
     pub fn advertise<T>(&mut self, topic: &str) -> Option<Publisher<T>>
     where
-        T: Message,
+        T: GzMessage,
     {
         Publisher::new(self, topic)
     }
@@ -175,7 +175,7 @@ impl Node {
     /// - If the topic type name is not a valid ASCII string
     pub fn subscribe_channel<T>(&mut self, topic: &str, bound: usize) -> Option<Receiver<T>>
     where
-        T: Message,
+        T: GzMessage,
     {
         let (tx, rx) = bounded(bound);
 
@@ -184,7 +184,7 @@ impl Node {
             let rx = rx.clone();
             move |msg| {
                 if tx.is_full() {
-                    // dequeue one message
+                    // dequeue one GzMessage
                     match rx.try_recv() {
                         Ok(_) => {
                             log::warn!("last message of topic {} was dropped", &topic);
@@ -227,14 +227,14 @@ impl Node {
     /// - If the topic type name is not a valid ASCII string
     pub fn subscribe<T, F>(&mut self, topic: &str, mut callback: F) -> bool
     where
-        T: Message,
+        T: GzMessage,
         F: FnMut(T) + 'static,
     {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
 
         let mut callback = Box::new({
             let topic = topic.to_string();
-            let expected_type = CString::new(T::NAME).expect("Invalid type name");
+            let expected_type = CString::new(T::GZ_TYPE_NAME).expect("Invalid type name");
 
             Box::new(
                 move |data: *const c_char, data_size: usize, topic_type: *const c_char| unsafe {
@@ -244,7 +244,7 @@ impl Node {
                                 "Received message from topic '{}' with unexpected type '{}', expected '{}'",
                                 &topic,
                                 incoming_type.to_str().unwrap(),
-                                T::NAME,
+                                T::GZ_TYPE_NAME,
                             );
                         return;
                     }
@@ -350,16 +350,16 @@ impl Node {
         timeout: Duration,
     ) -> Option<(Res, bool)>
     where
-        Req: Message,
-        Res: Message,
+        Req: GzMessage,
+        Res: GzMessage,
     {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
         let mut req_serialized = request
             .write_to_bytes()
             .expect("Failed to serialize request");
         req_serialized.push(0);
-        let creq_type = CString::new(Req::NAME).expect("Invalid type name");
-        let cres_type = CString::new(Res::NAME).expect("Invalid type name");
+        let creq_type = CString::new(Req::GZ_TYPE_NAME).expect("Invalid type name");
+        let cres_type = CString::new(Res::GZ_TYPE_NAME).expect("Invalid type name");
 
         let mut res_buf = FFIString::new();
         let mut result = false;

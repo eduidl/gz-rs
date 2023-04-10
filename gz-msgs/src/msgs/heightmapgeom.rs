@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.HeightmapGeom)
 pub struct HeightmapGeom {
     // message fields
@@ -355,6 +356,7 @@ impl ::protobuf::reflect::ProtobufValue for HeightmapGeom {
 /// Nested message and enums of message `HeightmapGeom`
 pub mod heightmap_geom {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.HeightmapGeom.Texture)
     pub struct Texture {
         // message fields
@@ -513,6 +515,7 @@ pub mod heightmap_geom {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.HeightmapGeom.Blend)
     pub struct Blend {
         // message fields

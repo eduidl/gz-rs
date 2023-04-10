@@ -212,4 +212,19 @@ pub use msgs::{
     wrench::Wrench,
     *,
 };
-pub use protobuf::{self, Message};
+pub use protobuf;
+use protobuf::Message;
+
+pub trait GzMessage: Message {
+    const GZ_TYPE_NAME: &'static str;
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_type_name() {
+        assert_eq!(Actor::GZ_TYPE_NAME, "gz.msgs.Actor");
+    }
+}

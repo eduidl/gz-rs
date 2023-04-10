@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.PointCloudPacked)
 pub struct PointCloudPacked {
     // message fields
@@ -296,6 +297,7 @@ impl ::protobuf::reflect::ProtobufValue for PointCloudPacked {
 /// Nested message and enums of message `PointCloudPacked`
 pub mod point_cloud_packed {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.PointCloudPacked.Field)
     pub struct Field {
         // message fields

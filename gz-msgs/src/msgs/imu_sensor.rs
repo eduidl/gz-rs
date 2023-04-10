@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(::gz_msgs_derive::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.IMUSensor)
 pub struct IMUSensor {
     // message fields
@@ -208,6 +209,7 @@ impl ::protobuf::reflect::ProtobufValue for IMUSensor {
 /// Nested message and enums of message `IMUSensor`
 pub mod imusensor {
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.IMUSensor.AngularVelocity)
     pub struct AngularVelocity {
         // message fields
@@ -369,6 +371,7 @@ pub mod imusensor {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.IMUSensor.LinearAcceleration)
     pub struct LinearAcceleration {
         // message fields
@@ -530,6 +533,7 @@ pub mod imusensor {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
+    #[derive(::gz_msgs_derive::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.IMUSensor.OrientationReferenceFrame)
     pub struct OrientationReferenceFrame {
         // message fields
