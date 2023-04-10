@@ -23,5 +23,6 @@ uuid = { version = "1", features = ["v4"] }
 [workspace]
 members = [
     "gz-msgs",
+    "gz-msgs-derive",
     "gz-transport-sys"
 ]
