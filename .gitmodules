@@ -1,0 +1,3 @@
+[submodule "gz-msgs/3rdparty/gz-msgs"]
+	path = gz-msgs/3rdparty/gz-msgs
+	url = git@github.com:gazebosim/gz-msgs.git
