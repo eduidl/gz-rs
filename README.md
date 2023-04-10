@@ -1,5 +1,7 @@
 # gz-rs
 
+[![crates.io](https://img.shields.io/crates/v/gz.svg)](https://crates.io/crates/gz)
+
 Rust binding for Gazebo (not Gazebo Classic). Currently, the only supported combination is Gazebo Garden and Linux.
 
 ## Dependencies
@@ -8,7 +10,7 @@ Rust binding for Gazebo (not Gazebo Classic). Currently, the only supported comb
 
 ## Examples
 
-```
+```no_rust
 $ cargo run --example sub
 Hello, world! 0
 Hello, world! 1
@@ -20,7 +22,7 @@ Hello, world! 4
 
 Execute the following in another terminal
 
-```
+```no_rust
 $ cargo run --example pub
 Publishing: 0
 Publishing: 1
