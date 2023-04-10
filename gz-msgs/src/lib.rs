@@ -212,3 +212,4 @@ pub use msgs::{
     wrench::Wrench,
     *,
 };
+pub use protobuf::Message;
