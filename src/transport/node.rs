@@ -158,6 +158,8 @@ impl Node {
     ///
     /// ```
     /// # use gz::transport::Node;
+    /// use gz::msgs::StringMsg;
+    ///
     /// let mut node = Node::new().unwrap();
     /// node.subscribe::<gz::msgs::StringMsg, _>("/hello", |msg| {
     ///     dbg!(msg);
