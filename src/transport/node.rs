@@ -8,6 +8,7 @@ use std::{
     time::Duration,
 };
 
+use crossbeam_channel::{bounded, Receiver, TryRecvError};
 use gz_msgs::Message;
 use gz_transport_sys as ffi;
 
@@ -150,6 +151,60 @@ impl Node {
             .unwrap()
             .try_into()
             .unwrap()
+    }
+
+    /// Subscribe to a topic registering a callback
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use gz::transport::Node;
+    /// use gz::msgs::StringMsg;
+    ///
+    /// let mut node = Node::new().unwrap();
+    /// let rx = node.subscribe_channel::<StringMsg>("/hello", 10).unwrap();
+    ///
+    /// for msg in rx {
+    ///     println!("Received: {:?}", msg.data);
+    /// }
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// - If the topic name is not a valid ASCII string
+    /// - If the topic type name is not a valid ASCII string
+    pub fn subscribe_channel<T>(&mut self, topic: &str, bound: usize) -> Option<Receiver<T>>
+    where
+        T: Message,
+    {
+        let (tx, rx) = bounded(bound);
+
+        let ret = self.subscribe::<T, _>(topic, {
+            let topic = topic.to_string();
+            let rx = rx.clone();
+            move |msg| {
+                if tx.is_full() {
+                    // dequeue one message
+                    match rx.try_recv() {
+                        Ok(_) => {
+                            log::warn!("last message of topic {} was dropped", &topic);
+                        }
+                        // maybe consumed from another thread
+                        Err(TryRecvError::Empty) => {}
+                        Err(TryRecvError::Disconnected) => {
+                            panic!("Channel {} is disconnected", &topic);
+                        }
+                    }
+                }
+                let _ = tx.try_send(msg);
+            }
+        });
+
+        if ret {
+            Some(rx)
+        } else {
+            None
+        }
     }
 
     /// Subscribe to a topic registering a callback

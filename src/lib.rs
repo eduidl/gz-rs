@@ -6,6 +6,8 @@
     clippy::nursery
 )]
 
+pub use crossbeam_channel;
 pub use gz_msgs as msgs;
+
 /// Gazebo transport bindings
 pub mod transport;

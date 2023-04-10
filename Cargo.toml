@@ -11,6 +11,7 @@ license = "Apache-2.0"
 keywords = ["gazebo", "robotics", "simulation"]
 
 [dependencies]
+crossbeam-channel = "0.5"
 gz-msgs = { path = "./gz-msgs", version = "0.2.0" }
 gz-transport-sys = { path = "./gz-transport-sys", version = "0.1.0" }
 log = "0.4"
