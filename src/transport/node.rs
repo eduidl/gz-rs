@@ -8,8 +8,8 @@ use std::{
     time::Duration,
 };
 
+use gz_msgs::Message;
 use gz_transport_sys as ffi;
-use protobuf::Message;
 
 use super::{
     string::{FFIString, StringVec},

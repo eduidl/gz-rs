@@ -5,8 +5,8 @@ use std::{
     ptr::NonNull,
 };
 
+use gz_msgs::Message;
 use gz_transport_sys as ffi;
-use protobuf::Message;
 
 use super::Node;
 
