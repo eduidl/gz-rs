@@ -1,6 +1,6 @@
 [package]
 name = "gz-msgs"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.60.0"
@@ -10,7 +10,12 @@ repository = "https://github.com/eduidl/gz-rs"
 license = "Apache-2.0"
 keywords = ["gazebo", "robotics", "simulation", "messages"]
 categories = ["data-strctures"]
-exclude = ["generate.sh"]
+include = [
+    "Cargo.toml",
+    "src/**/*.rs",
+    "build.rs",
+    "3rdparty/**/*.proto",
+]
 
 [dependencies]
 protobuf = "3"
