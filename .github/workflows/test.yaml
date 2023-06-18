@@ -1,0 +1,45 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+
+      matrix:
+        rust:
+          - 1.60.0
+          - stable
+          - beta
+          - nightly
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: Install Gazebo
+        run: |
+          sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
+          wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+          sudo apt-get update
+          sudo apt install gz-garden
+
+      - name: Check
+        run: cargo check
+
+      - name: Test
+        run: cargo test
