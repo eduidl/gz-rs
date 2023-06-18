@@ -7,7 +7,10 @@ use std::{
     time::Duration,
 };
 
-use gz::{msgs::StringMsg, transport::Node};
+use gz::{
+    msgs::{StringMsg, Vector3d},
+    transport::Node,
+};
 use uuid::Uuid;
 
 #[test]
@@ -101,6 +104,39 @@ fn test_node_pub_sub() {
 
     let msg = StringMsg {
         data: "Hello, world!".to_string(),
+        ..Default::default()
+    };
+
+    assert!(publisher.publish(&msg));
+    assert!(publisher.publish(&msg));
+
+    thread::sleep(Duration::from_millis(5));
+
+    assert_eq!(counter.load(Ordering::Relaxed), 2);
+}
+
+#[test]
+fn test_node_pub_sub_include_null_characters() {
+    let partition = Uuid::new_v4().to_string();
+
+    let mut pub_node = Node::with_partition(&partition).unwrap();
+    let mut sub_node = Node::with_partition(&partition).unwrap();
+
+    let counter = Arc::new(AtomicU8::new(0));
+    {
+        let counter = Arc::clone(&counter);
+        sub_node.subscribe::<Vector3d, _>("hoge", move |msg| {
+            assert_eq!(msg.x, 1.0);
+            assert_eq!(msg.y, 0.0);
+            assert_eq!(msg.z, 0.0);
+            counter.fetch_add(1, Ordering::Relaxed);
+        });
+    }
+
+    let mut publisher = pub_node.advertise::<Vector3d>("hoge").unwrap();
+
+    let msg = Vector3d {
+        x: 1.0,
         ..Default::default()
     };
 
