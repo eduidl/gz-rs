@@ -69,8 +69,9 @@ Publisher* nodeAdvertise(Node* node, const char* topic, const char* msgType) {
   return pub;
 }
 
-bool publisherPublish(Publisher* pub, const char* msg) {
-  return pub->impl.PublishRaw(msg, pub->msgType);
+bool publisherPublish(Publisher* pub, const char* msg, size_t msg_len) {
+  std::string msg_str(msg, msg_len);
+  return pub->impl.PublishRaw(msg_str, pub->msgType);
 }
 
 void publisherDestroy(Publisher** pub) {

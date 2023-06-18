@@ -21,7 +21,7 @@ StringVec* nodeTopicList(const Node*);
 // Topic Pub
 StringVec* nodeAdvertisedTopics(const Node*);
 Publisher* nodeAdvertise(Node* node, const char* topic, const char* msgType);
-bool publisherPublish(Publisher* pub, const char* msg);
+bool publisherPublish(Publisher* pub, const char* msg, size_t msg_len);
 void publisherDestroy(Publisher**);
 
 // Topic Sub

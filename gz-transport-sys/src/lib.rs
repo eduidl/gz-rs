@@ -43,7 +43,11 @@ extern "C" {
         topic: *const c_char,
         topic_type: *const c_char,
     ) -> *mut Publisher;
-    pub fn publisherPublish(publisher: &mut Publisher, data: *const c_char) -> bool;
+    pub fn publisherPublish(
+        publisher: &mut Publisher,
+        data: *const c_char,
+        data_len: usize,
+    ) -> bool;
     pub fn publisherDestroy(publisher: &mut *mut Publisher);
 
     // Topic Sub
