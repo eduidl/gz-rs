@@ -1,6 +1,9 @@
 name: Rust
 
 on:
+  schedule:
+    - cron: "0 12 * * 6"
+
   push:
     branches: [ "main" ]
   pull_request:
@@ -12,7 +15,7 @@ env:
 jobs:
   test:
     strategy:
-      fail-fast: false
+      # fail-fast: false
 
       matrix:
         rust:
@@ -25,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
@@ -35,8 +40,8 @@ jobs:
         run: |
           sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
           wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-          sudo apt-get update
-          sudo apt install gz-garden
+          sudo apt update -q
+          sudo apt install -yq gz-garden
 
       - name: Check
         run: cargo check
