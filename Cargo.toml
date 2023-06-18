@@ -1,6 +1,6 @@
 [package]
 name = "gz"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.60.0"
@@ -16,7 +16,7 @@ include = [
 [dependencies]
 crossbeam-channel = "0.5"
 gz-msgs = { path = "./gz-msgs", version = "0.3.1" }
-gz-transport-sys = { path = "./gz-transport-sys", version = "0.1.0" }
+gz-transport-sys = { path = "./gz-transport-sys", version = "0.1.1" }
 log = "0.4"
 
 [dev-dependencies]
