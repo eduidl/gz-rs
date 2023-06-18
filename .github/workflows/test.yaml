@@ -36,12 +36,15 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
 
+      - name: Restore cache
+        uses: Swatinem/rust-cache@v2
+
       - name: Install Gazebo
         run: |
           sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
           wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-          sudo apt update -q
-          sudo apt install -yq gz-garden
+          sudo apt update -qq
+          sudo apt install -yqq libgz-transport12-dev
 
       - name: Check
         run: cargo check
