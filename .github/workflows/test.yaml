@@ -20,6 +20,7 @@ jobs:
       matrix:
         rust:
           - 1.60.0
+          - 1.63.0
           - stable
           - beta
           - nightly
@@ -36,9 +37,6 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
 
-      - name: Restore cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Install Gazebo
         run: |
           sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
@@ -47,7 +45,33 @@ jobs:
           sudo apt install -yqq libgz-transport12-dev
 
       - name: Check
-        run: cargo check
+        run: cargo build
 
       - name: Test
+        if: ${{ matrix.rust != '1.60.0' }}
         run: cargo test
+
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install Tools
+        run: cargo install cargo-audit cargo-outdated
+
+      - name: Outdated
+        run: cargo outdated --exit-code 1
+
+      - name: Audit
+        run: cargo audit
