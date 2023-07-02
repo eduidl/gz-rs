@@ -1,6 +1,6 @@
 [package]
 name = "gz-transport-sys"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.60.0"
