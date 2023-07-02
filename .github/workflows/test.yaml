@@ -18,12 +18,12 @@ jobs:
       fail-fast: false
 
       matrix:
-        rust:
-          - 1.60.0
-          - 1.63.0
-          - stable
-          - beta
-          - nightly
+        include:
+          - { rust: 1.60.0,  transport: gz-transport12 }
+          - { rust: stable,  transport: ignition-transport11 }
+          - { rust: stable,  transport: gz-transport12 }
+          - { rust: beta,    transport: gz-transport12 }
+          - { rust: nightly, transport: gz-transport12 }
 
     runs-on: ubuntu-latest
 
@@ -42,7 +42,7 @@ jobs:
           sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
           wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
           sudo apt update -qq
-          sudo apt install -yqq libgz-transport12-dev
+          sudo apt install -yqq lib${{ matrix.transport }}-dev
 
       - name: Check
         run: cargo build
