@@ -7,11 +7,13 @@ Rust binding for Gazebo (not Gazebo Classic). Currently, the only supported comb
 ## Dependencies
 
 - [Gazebo Garden](https://gazebosim.org/docs/garden/install)
+- or [Gazebo Fortress](https://gazebosim.org/docs/fortress/install)
+  - **make sure to enable `ignition` feature**
 
 ## Examples
 
 ```no_rust
-$ cargo run --example sub
+$ cargo run --example sub [--features ignition]
 Hello, world! 0
 Hello, world! 1
 Hello, world! 2
@@ -23,7 +25,7 @@ Hello, world! 4
 Execute the following in another terminal
 
 ```no_rust
-$ cargo run --example pub
+$ cargo run --example pub [--features ignition]
 Publishing: 0
 Publishing: 1
 Publishing: 2
