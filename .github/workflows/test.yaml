@@ -19,7 +19,7 @@ jobs:
 
       matrix:
         include:
-          - { rust: 1.60.0,  transport: gz-transport12 }
+          - { rust: 1.64.0,  transport: gz-transport12 }
           - { rust: stable,  transport: ignition-transport11 }
           - { rust: stable,  transport: gz-transport12 }
           - { rust: beta,    transport: gz-transport12 }
