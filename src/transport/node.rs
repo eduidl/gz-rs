@@ -295,8 +295,13 @@ impl Node {
             return false;
         }
 
-        let _c = self.callbacks.remove(topic);
-        unsafe { ffi::nodeUnsubscribe(self.r#impl.as_mut(), ctopic_name.as_ptr()) }
+        let ret = unsafe { ffi::nodeUnsubscribe(self.r#impl.as_mut(), ctopic_name.as_ptr()) };
+
+        if ret {
+            self.callbacks.remove(topic);
+        }
+
+        ret
     }
 
     /// Get the list of services currently advertised in the network
