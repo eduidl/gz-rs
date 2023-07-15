@@ -1,13 +1,13 @@
 [package]
 name = "gz-transport-sys"
 version = "0.2.0"
-authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
-edition = "2021"
-rust-version = "1.60.0"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 description = "A low-level Rust wrapper for the Gazebo Transport"
 readme = "README.md"
-repository = "https://github.com/eduidl/gz-rs"
-license = "Apache-2.0"
 keywords = ["gazebo", "robotics", "simulation"]
 categories = ["external-ffi-bindings"]
 links = "gz-transport12"

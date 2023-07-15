@@ -1,13 +1,13 @@
 [package]
 name = "gz-msgs-derive"
 version = "0.2.0"
-authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
-edition = "2021"
-rust-version = "1.60.0"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 description = "Internally used derive macro for gz-msgs"
 readme = "README.md"
-repository = "https://github.com/eduidl/gz-rs"
-license = "Apache-2.0"
 
 [lib]
 proc-macro = true

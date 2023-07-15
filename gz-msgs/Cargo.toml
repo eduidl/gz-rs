@@ -1,25 +1,20 @@
 [package]
 name = "gz-msgs"
 version = "0.4.0"
-authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
-edition = "2021"
-rust-version = "1.60.0"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 description = "Rust implmentation of Gazebo Messages"
 readme = "README.md"
-repository = "https://github.com/eduidl/gz-rs"
-license = "Apache-2.0"
 keywords = ["gazebo", "robotics", "simulation", "messages"]
 categories = ["data-strctures"]
-include = [
-    "Cargo.toml",
-    "src/**/*.rs",
-    "build.rs",
-    "3rdparty/**/*.proto",
-]
+include = ["Cargo.toml", "src/**/*.rs", "build.rs", "3rdparty/**/*.proto"]
 
 [dependencies]
 protobuf = "3"
-gz-msgs-derive = { path = "../gz-msgs-derive", version = "0.2.0" }
+gz-msgs-derive.workspace = true
 
 [build-dependencies]
 protobuf = "3"
