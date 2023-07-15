@@ -200,11 +200,7 @@ impl Node {
             }
         });
 
-        if ret {
-            Some(rx)
-        } else {
-            None
-        }
+        ret.then_some(rx)
     }
 
     /// Subscribe to a topic registering a callback
