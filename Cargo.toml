@@ -31,7 +31,7 @@ members = ["gz-msgs", "gz-msgs-derive", "gz-transport-sys"]
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.64.0"
-repository = "https://github.com/eduidl/gz-rs"
+repository = "https://github.com/zrrws/gz-rs"
 license = "Apache-2.0"
 
 [workspace.dependencies]
