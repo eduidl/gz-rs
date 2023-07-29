@@ -1,4 +1,4 @@
-name: Rust
+name: Test
 
 on:
   schedule:
@@ -45,11 +45,10 @@ jobs:
           sudo apt install -yqq lib${{ matrix.transport }}-dev
 
       - name: Check
-        run: cargo build
+        run: cargo build --workspace
 
       - name: Test
-        if: ${{ matrix.rust != '1.60.0' }}
-        run: cargo test
+        run: cargo test --workspace
 
   audit:
     runs-on: ubuntu-latest

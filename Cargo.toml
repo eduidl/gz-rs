@@ -1,31 +1,5 @@
-[package]
-name = "gz"
-version = "0.4.0"
-authors.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-repository.workspace = true
-license.workspace = true
-description = "Gazebo client library"
-readme = "README.md"
-keywords = ["gazebo", "robotics", "simulation"]
-include = ["src/**/*.rs"]
-
-[dependencies]
-crossbeam-channel = "0.5"
-gz-msgs.workspace = true
-gz-transport-sys.workspace = true
-log = "0.4"
-
-[dev-dependencies]
-env_logger = "0.10"
-uuid = { version = "1", features = ["v4"] }
-
-[features]
-ignition = ["gz-msgs/ignition"]
-
 [workspace]
-members = ["gz-msgs", "gz-msgs-derive", "gz-transport-sys"]
+members = ["crates/*", "examples"]
 
 [workspace.package]
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
@@ -35,6 +9,7 @@ repository = "https://github.com/zrrws/gz-rs"
 license = "Apache-2.0"
 
 [workspace.dependencies]
-gz-msgs = { path = "./gz-msgs", version = "0.4.0" }
-gz-msgs-derive = { path = "./gz-msgs-derive", version = "0.2.0" }
-gz-transport-sys = { path = "./gz-transport-sys", version = "0.2.0" }
+gz = { path = "./crates/gz", version = "0.4.0" }
+gz-msgs = { path = "./crates/gz-msgs", version = "0.4.0" }
+gz-msgs-derive = { path = "./crates/gz-msgs-derive", version = "0.2.0" }
+gz-transport-sys = { path = "./crates/gz-transport-sys", version = "0.2.0" }
