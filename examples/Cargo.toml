@@ -1,0 +1,16 @@
+[package]
+name = "gz-examples"
+version = "0.1.0"
+publish = false
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+env_logger = "0.10"
+gz.workspace = true
+
+[features]
+ignition = ["gz/ignition"]
