@@ -13,4 +13,6 @@ env_logger = "0.10"
 gz.workspace = true
 
 [features]
-ignition = ["gz/ignition"]
+fortress = ["gz/fortress"]
+garden = ["gz/garden"]
+harmonic = ["gz/harmonic"]
