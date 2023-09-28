@@ -1,0 +1,20 @@
+[package]
+name = "gz-msgs10"
+version = "0.5.0"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+description = "Rust implmentation of Gazebo Messages"
+readme = "README.md"
+keywords = ["gazebo", "robotics", "simulation", "messages"]
+categories = ["data-strctures"]
+include = ["Cargo.toml", "src/**/*.rs", "build.rs", "3rdparty/**/*.proto"]
+
+[dependencies]
+protobuf.workspace = true
+gz-msgs-derive.workspace = true
+
+[build-dependencies]
+gz-msgs-build.workspace = true

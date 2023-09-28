@@ -5,10 +5,10 @@ use std::{
     ptr::NonNull,
 };
 
-use gz_msgs::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::Node;
+use crate::msgs::GzMessage;
 
 /// A publisher of a topic
 pub struct Publisher<T: GzMessage> {

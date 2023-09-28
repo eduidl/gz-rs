@@ -19,11 +19,12 @@ jobs:
 
       matrix:
         include:
-          - { rust: 1.64.0,  transport: gz-transport12 }
-          - { rust: stable,  transport: ignition-transport11 }
-          - { rust: stable,  transport: gz-transport12 }
-          - { rust: beta,    transport: gz-transport12 }
-          - { rust: nightly, transport: gz-transport12 }
+          - { rust: 1.64.0,  distro: garden,   transport: gz-transport12 }
+          - { rust: stable,  distro: fortress, transport: ignition-transport11 }
+          - { rust: stable,  distro: garden,   transport: gz-transport12 }
+          - { rust: stable,  distro: harmonic, transport: gz-transport13 }
+          - { rust: beta,    distro: garden,   transport: gz-transport12 }
+          - { rust: nightly, distro: garden,   transport: gz-transport12 }
 
     runs-on: ubuntu-latest
 
@@ -39,16 +40,19 @@ jobs:
 
       - name: Install Gazebo
         run: |
-          sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list'
-          wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+          sudo wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
+            | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-prerelease $(lsb_release -cs) main" \
+           | sudo tee /etc/apt/sources.list.d/gazebo-prerelease.list > /dev/null
           sudo apt update -qq
           sudo apt install -yqq lib${{ matrix.transport }}-dev
 
       - name: Check
-        run: cargo build --workspace
+        run: cargo build --workspace --features ${{ matrix.distro }}
 
       - name: Test
-        run: cargo test --workspace
+        run: cargo test --workspace --features ${{ matrix.distro }}
 
   audit:
     runs-on: ubuntu-latest

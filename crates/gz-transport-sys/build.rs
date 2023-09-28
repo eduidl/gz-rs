@@ -3,7 +3,7 @@ use std::{env, error::Error};
 use pkg_config::{Config, Library};
 
 fn find_library() -> Result<Library, &'static str> {
-    let candidates = ["gz-transport12", "ignition-transport11"];
+    let candidates = ["gz-transport13", "gz-transport12", "ignition-transport11"];
 
     for candidate in candidates {
         if let Ok(library) = Config::new().probe(candidate) {

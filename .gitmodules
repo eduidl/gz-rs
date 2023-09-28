@@ -1,3 +1,12 @@
-[submodule "crates/gz-msgs/3rdparty/gz-msgs"]
-	path = crates/gz-msgs/3rdparty/gz-msgs
+[submodule "crates/gz-msgs8/3rdparty/gz-msgs"]
+	path = crates/gz-msgs8/3rdparty/gz-msgs
 	url = git@github.com:gazebosim/gz-msgs.git
+	branch = ign-msgs8
+[submodule "crates/gz-msgs9/3rdparty/gz-msgs"]
+	path = crates/gz-msgs9/3rdparty/gz-msgs
+	url = git@github.com:gazebosim/gz-msgs.git
+	branch = gz-msgs9
+[submodule "crates/gz-msgs10/3rdparty/gz-msgs"]
+	path = crates/gz-msgs10/3rdparty/gz-msgs
+	url = git@github.com:gazebosim/gz-msgs.git
+	branch = gz-msgs10

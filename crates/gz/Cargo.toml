@@ -1,6 +1,6 @@
 [package]
 name = "gz"
-version = "0.4.0"
+version = "0.5.0"
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -13,7 +13,9 @@ include = ["src/**/*.rs"]
 
 [dependencies]
 crossbeam-channel = "0.5"
-gz-msgs.workspace = true
+gz-msgs8 = { workspace = true, optional = true }
+gz-msgs9 = { workspace = true, optional = true }
+gz-msgs10 = { workspace = true, optional = true }
 gz-transport-sys.workspace = true
 log = "0.4"
 
@@ -21,4 +23,6 @@ log = "0.4"
 uuid = { version = "1", features = ["v4"] }
 
 [features]
-ignition = ["gz-msgs/ignition"]
+fortress = ["gz-msgs8"]
+garden = ["gz-msgs9"]
+harmonic = ["gz-msgs10"]

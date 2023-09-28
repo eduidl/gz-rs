@@ -9,13 +9,13 @@ use std::{
 };
 
 use crossbeam_channel::{bounded, Receiver, TryRecvError};
-use gz_msgs::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::{
     string::{FFIString, StringVec},
     Publisher,
 };
+use crate::msgs::GzMessage;
 
 type SubCallbackBox = Box<dyn FnMut(*const c_char, usize, *const c_char)>;
 
