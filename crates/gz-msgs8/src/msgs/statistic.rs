@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.Statistic)
 pub struct Statistic {
     // message fields
@@ -289,7 +289,7 @@ pub mod statistic {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.StatisticsGroup)
 pub struct StatisticsGroup {
     // message fields
@@ -450,7 +450,7 @@ impl ::protobuf::reflect::ProtobufValue for StatisticsGroup {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.Metric)
 pub struct Metric {
     // message fields

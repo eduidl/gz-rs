@@ -1,4 +1,5 @@
-use gz::{msgs::StringMsg, transport::Node};
+use gz::transport::Node;
+use gz_msgs::StringMsg;
 
 fn main() {
     env_logger::init();

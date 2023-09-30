@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::GzMessage)]
+#[derive(::gz_msgs_common::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.Joint)
 pub struct Joint {
     // message fields
@@ -518,7 +518,7 @@ impl ::protobuf::reflect::ProtobufValue for Joint {
 /// Nested message and enums of message `Joint`
 pub mod joint {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Joint.Gearbox)
     pub struct Gearbox {
         // message fields
@@ -659,7 +659,7 @@ pub mod joint {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.Joint.Screw)
     pub struct Screw {
         // message fields

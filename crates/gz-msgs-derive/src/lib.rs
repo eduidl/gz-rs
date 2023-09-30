@@ -9,7 +9,7 @@ pub fn gz_derive(input: TokenStream) -> TokenStream {
 
     match &input.data {
         syn::Data::Struct(_) => quote! {
-            impl crate::GzMessage for #type_name {
+            impl ::gz_msgs_common::GzMessage for #type_name {
                 const GZ_TYPE_NAME: &'static str = concat!("gz.msgs.", stringify!(#type_name));
             }
         }
@@ -25,7 +25,7 @@ pub fn ign_derive(input: TokenStream) -> TokenStream {
 
     match &input.data {
         syn::Data::Struct(_) => quote! {
-            impl crate::GzMessage for #type_name {
+            impl ::gz_msgs_common::GzMessage for #type_name {
                 const GZ_TYPE_NAME: &'static str = concat!("ignition.msgs.", stringify!(#type_name));
             }
         }

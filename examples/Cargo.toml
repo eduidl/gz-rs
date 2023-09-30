@@ -11,8 +11,9 @@ license.workspace = true
 [dependencies]
 env_logger = "0.10"
 gz.workspace = true
+gz-msgs.workspace = true
 
 [features]
-fortress = ["gz/fortress"]
-garden = ["gz/garden"]
-harmonic = ["gz/harmonic"]
+fortress = ["gz-msgs/fortress"]
+garden = ["gz-msgs/garden"]
+harmonic = ["gz-msgs/harmonic"]

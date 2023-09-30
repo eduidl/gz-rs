@@ -9,13 +9,13 @@ use std::{
 };
 
 use crossbeam_channel::{bounded, Receiver, TryRecvError};
+use gz_msgs_common::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::{
     string::{FFIString, StringVec},
     Publisher,
 };
-use crate::msgs::GzMessage;
 
 type SubCallbackBox = Box<dyn FnMut(*const c_char, usize, *const c_char)>;
 
@@ -121,7 +121,7 @@ impl Node {
     /// ```
     /// # use gz::transport::Node;
     /// let mut node = Node::new().unwrap();
-    /// let pub_ = node.advertise::<gz::msgs::StringMsg>("/hello").unwrap();
+    /// let pub_ = node.advertise::<gz_msgs::StringMsg>("/hello").unwrap();
     /// ```
     ///
     /// # Panics
@@ -159,7 +159,7 @@ impl Node {
     ///
     /// ```no_run
     /// # use gz::transport::Node;
-    /// use gz::msgs::StringMsg;
+    /// use gz_msgs::StringMsg;
     ///
     /// let mut node = Node::new().unwrap();
     /// let rx = node.subscribe_channel::<StringMsg>("/hello", 10).unwrap();
@@ -209,10 +209,10 @@ impl Node {
     ///
     /// ```
     /// # use gz::transport::Node;
-    /// use gz::msgs::StringMsg;
+    /// use gz_msgs::StringMsg;
     ///
     /// let mut node = Node::new().unwrap();
-    /// node.subscribe::<gz::msgs::StringMsg, _>("/hello", |msg| {
+    /// node.subscribe::<gz_msgs::StringMsg, _>("/hello", |msg| {
     ///     dbg!(msg);
     /// });
     /// ```
@@ -331,7 +331,7 @@ impl Node {
     /// # use gz::transport::Node;
     /// let mut node = Node::new().unwrap();
     /// let (res, ok) = node
-    ///     .request::<gz::msgs::StringMsg, gz::msgs::StringMsg>(
+    ///     .request::<gz_msgs::StringMsg, gz_msgs::StringMsg>(
     ///         "/hello",
     ///         &Default::default(),
     ///         Duration::from_secs(1),

@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.GPSSensor)
 pub struct GPSSensor {
     // message fields
@@ -190,7 +190,7 @@ impl ::protobuf::reflect::ProtobufValue for GPSSensor {
 /// Nested message and enums of message `GPSSensor`
 pub mod gpssensor {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::IgnMessage)]
+    #[derive(::gz_msgs_common::IgnMessage)]
     // @@protoc_insertion_point(message:ignition.msgs.GPSSensor.Sensing)
     pub struct Sensing {
         // message fields

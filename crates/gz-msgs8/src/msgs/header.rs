@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.Header)
 pub struct Header {
     // message fields
@@ -171,7 +171,7 @@ impl ::protobuf::reflect::ProtobufValue for Header {
 /// Nested message and enums of message `Header`
 pub mod header {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::IgnMessage)]
+    #[derive(::gz_msgs_common::IgnMessage)]
     // @@protoc_insertion_point(message:ignition.msgs.Header.Map)
     pub struct Map {
         // message fields

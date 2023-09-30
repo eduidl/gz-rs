@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.SdfGeneratorConfig)
 pub struct SdfGeneratorConfig {
     // message fields
@@ -207,7 +207,7 @@ impl ::protobuf::reflect::ProtobufValue for SdfGeneratorConfig {
 /// Nested message and enums of message `SdfGeneratorConfig`
 pub mod sdf_generator_config {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::IgnMessage)]
+    #[derive(::gz_msgs_common::IgnMessage)]
     // @@protoc_insertion_point(message:ignition.msgs.SdfGeneratorConfig.EntityGeneratorConfig)
     pub struct EntityGeneratorConfig {
         // message fields

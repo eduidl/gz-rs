@@ -5,10 +5,10 @@ use std::{
     ptr::NonNull,
 };
 
+use gz_msgs_common::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::Node;
-use crate::msgs::GzMessage;
 
 /// A publisher of a topic
 pub struct Publisher<T: GzMessage> {
@@ -43,7 +43,7 @@ impl<T: GzMessage> Publisher<T> {
     /// use gz::transport::Node;
     ///
     /// let mut node = Node::new().unwrap();
-    /// let mut pub_ = node.advertise::<gz::msgs::StringMsg>("/hello").unwrap();
+    /// let mut pub_ = node.advertise::<gz_msgs::StringMsg>("/hello").unwrap();
     /// pub_.publish(&Default::default());
     /// ```
     ///

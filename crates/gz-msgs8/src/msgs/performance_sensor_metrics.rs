@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.PerformanceSensorMetrics)
 pub struct PerformanceSensorMetrics {
     // message fields
