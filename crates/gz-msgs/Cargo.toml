@@ -6,6 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 license.workspace = true
+description = "Gazebo messages for Rust"
 
 [dependencies]
 gz-msgs8 = { workspace = true, optional = true }
@@ -13,6 +14,7 @@ gz-msgs9 = { workspace = true, optional = true }
 gz-msgs10 = { workspace = true, optional = true }
 
 [features]
+default = ["gz-msgs9"]
 fortress = ["gz-msgs8"]
 garden = ["gz-msgs9"]
 harmonic = ["gz-msgs10"]
