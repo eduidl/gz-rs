@@ -13,16 +13,10 @@ include = ["src/**/*.rs"]
 
 [dependencies]
 crossbeam-channel = "0.5"
-gz-msgs8 = { workspace = true, optional = true }
-gz-msgs9 = { workspace = true, optional = true }
-gz-msgs10 = { workspace = true, optional = true }
+gz-msgs-common.workspace = true
 gz-transport-sys.workspace = true
 log = "0.4"
 
 [dev-dependencies]
 uuid = { version = "1", features = ["v4"] }
-
-[features]
-fortress = ["gz-msgs8"]
-garden = ["gz-msgs9"]
-harmonic = ["gz-msgs10"]
+gz-msgs.workspace = true

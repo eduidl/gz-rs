@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::GzMessage)]
+#[derive(::gz_msgs_common::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.FuelMetadata)
 pub struct FuelMetadata {
     // message fields
@@ -498,7 +498,7 @@ pub mod fuel_metadata {
         }
     }
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.Contact)
     pub struct Contact {
         // message fields
@@ -639,7 +639,7 @@ pub mod fuel_metadata {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.Legal)
     pub struct Legal {
         // message fields
@@ -780,7 +780,7 @@ pub mod fuel_metadata {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.Model)
     pub struct Model {
         // message fields
@@ -922,7 +922,7 @@ pub mod fuel_metadata {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.World)
     pub struct World {
         // message fields
@@ -1064,7 +1064,7 @@ pub mod fuel_metadata {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.Dependency)
     pub struct Dependency {
         // message fields
@@ -1187,7 +1187,7 @@ pub mod fuel_metadata {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.Compatibility)
     pub struct Compatibility {
         // message fields
@@ -1486,7 +1486,7 @@ pub mod fuel_metadata {
     }
 
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.FuelMetadata.Categories)
     pub struct Categories {
         // message fields

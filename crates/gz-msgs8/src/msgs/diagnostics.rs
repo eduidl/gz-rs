@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::IgnMessage)]
+#[derive(::gz_msgs_common::IgnMessage)]
 // @@protoc_insertion_point(message:ignition.msgs.Diagnostics)
 pub struct Diagnostics {
     // message fields
@@ -227,7 +227,7 @@ impl ::protobuf::reflect::ProtobufValue for Diagnostics {
 /// Nested message and enums of message `Diagnostics`
 pub mod diagnostics {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::IgnMessage)]
+    #[derive(::gz_msgs_common::IgnMessage)]
     // @@protoc_insertion_point(message:ignition.msgs.Diagnostics.DiagTime)
     pub struct DiagTime {
         // message fields

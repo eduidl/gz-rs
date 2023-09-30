@@ -7,7 +7,7 @@ struct GenIgnMessage;
 
 impl CustomizeCallback for GenIgnMessage {
     fn message(&self, _message: &MessageDescriptor) -> protobuf_codegen::Customize {
-        Customize::default().before("#[derive(::gz_msgs_derive::IgnMessage)]")
+        Customize::default().before("#[derive(::gz_msgs_common::IgnMessage)]")
     }
 }
 
@@ -15,7 +15,7 @@ struct GenGzMessage;
 
 impl CustomizeCallback for GenGzMessage {
     fn message(&self, _message: &MessageDescriptor) -> protobuf_codegen::Customize {
-        Customize::default().before("#[derive(::gz_msgs_derive::GzMessage)]")
+        Customize::default().before("#[derive(::gz_msgs_common::GzMessage)]")
     }
 }
 

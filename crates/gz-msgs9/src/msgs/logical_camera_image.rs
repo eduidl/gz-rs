@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::GzMessage)]
+#[derive(::gz_msgs_common::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.LogicalCameraImage)
 pub struct LogicalCameraImage {
     // message fields
@@ -190,7 +190,7 @@ impl ::protobuf::reflect::ProtobufValue for LogicalCameraImage {
 /// Nested message and enums of message `LogicalCameraImage`
 pub mod logical_camera_image {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.LogicalCameraImage.Model)
     pub struct Model {
         // message fields

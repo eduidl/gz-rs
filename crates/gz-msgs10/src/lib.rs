@@ -220,6 +220,8 @@ pub trait GzMessage: Message {
 
 #[cfg(test)]
 mod test {
+    use gz_msgs_common::GzMessage;
+
     use super::*;
 
     #[test]

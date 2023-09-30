@@ -26,7 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
-#[derive(::gz_msgs_derive::GzMessage)]
+#[derive(::gz_msgs_common::GzMessage)]
 // @@protoc_insertion_point(message:gz.msgs.LogStatus)
 pub struct LogStatus {
     // message fields
@@ -190,7 +190,7 @@ impl ::protobuf::reflect::ProtobufValue for LogStatus {
 /// Nested message and enums of message `LogStatus`
 pub mod log_status {
     #[derive(PartialEq,Clone,Default,Debug)]
-    #[derive(::gz_msgs_derive::GzMessage)]
+    #[derive(::gz_msgs_common::GzMessage)]
     // @@protoc_insertion_point(message:gz.msgs.LogStatus.LogFile)
     pub struct LogFile {
         // message fields

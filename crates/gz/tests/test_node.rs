@@ -7,10 +7,8 @@ use std::{
     time::Duration,
 };
 
-use gz::{
-    msgs::{StringMsg, Vector3d},
-    transport::Node,
-};
+use gz::transport::Node;
+use gz_msgs::{StringMsg, Vector3d};
 use uuid::Uuid;
 
 #[test]

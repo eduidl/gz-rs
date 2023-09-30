@@ -1,0 +1,18 @@
+[package]
+name = "gz-msgs"
+version = "0.6.0"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+gz-msgs8 = { workspace = true, optional = true }
+gz-msgs9 = { workspace = true, optional = true }
+gz-msgs10 = { workspace = true, optional = true }
+
+[features]
+fortress = ["gz-msgs8"]
+garden = ["gz-msgs9"]
+harmonic = ["gz-msgs10"]

@@ -209,15 +209,11 @@ pub use msgs::{
     world_stats::WorldStatistics,
     wrench::Wrench,
 };
-pub use protobuf;
-use protobuf::Message;
-
-pub trait GzMessage: Message {
-    const GZ_TYPE_NAME: &'static str;
-}
 
 #[cfg(test)]
 mod test {
+    use gz_msgs_common::GzMessage;
+
     use super::*;
 
     #[test]
