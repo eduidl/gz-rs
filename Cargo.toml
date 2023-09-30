@@ -10,7 +10,7 @@ repository = "https://github.com/zrrws/gz-rs"
 license = "Apache-2.0"
 
 [workspace.dependencies]
-gz = { path = "./crates/gz", version = "0.5.0" }
+gz = { path = "./crates/gz", version = "0.6.0" }
 gz-msgs = { path = "./crates/gz-msgs", version = "0.6.0" }
 gz-msgs-build = { path = "./crates/gz-msgs-build", version = "0.2.0" }
 gz-msgs-common = { path = "./crates/gz-msgs-common", version = "0.1.0" }
