@@ -1,8 +1,9 @@
 # gz-rs
 
 [![crates.io](https://img.shields.io/crates/v/gz.svg)](https://crates.io/crates/gz)
+[![crates.io](https://img.shields.io/crates/v/gz-msgs.svg)](https://crates.io/crates/gz-msgs)
 
-Rust binding for Gazebo (not Gazebo Classic). Currently, the only supported combination is Gazebo Garden and Linux.
+Rust binding for Gazebo (not Gazebo Classic).
 
 ## Dependencies
 
