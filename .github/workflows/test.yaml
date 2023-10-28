@@ -5,9 +5,9 @@ on:
     - cron: "0 12 * * 6"
 
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -19,12 +19,12 @@ jobs:
 
       matrix:
         include:
-          - { rust: 1.64.0,  distro: garden,   transport: gz-transport12 }
-          - { rust: stable,  distro: fortress, transport: ignition-transport11 }
-          - { rust: stable,  distro: garden,   transport: gz-transport12 }
-          - { rust: stable,  distro: harmonic, transport: gz-transport13 }
-          - { rust: beta,    distro: garden,   transport: gz-transport12 }
-          - { rust: nightly, distro: garden,   transport: gz-transport12 }
+          - { rust: 1.64.0, distro: garden, transport: gz-transport12 }
+          - { rust: stable, distro: fortress, transport: ignition-transport11 }
+          - { rust: stable, distro: garden, transport: gz-transport12 }
+          - { rust: stable, distro: harmonic, transport: gz-transport13 }
+          - { rust: beta, distro: garden, transport: gz-transport12 }
+          - { rust: nightly, distro: garden, transport: gz-transport12 }
 
     runs-on: ubuntu-latest
 
