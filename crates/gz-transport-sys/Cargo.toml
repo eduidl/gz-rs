@@ -14,5 +14,5 @@ links = "gz-transport12"
 exclude = [".clang-format"]
 
 [build-dependencies]
-cc = "1.0"
-pkg-config = "0.3"
+cc = "1.0.83"
+pkg-config = "0.3.27"
