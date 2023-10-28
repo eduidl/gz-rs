@@ -19,7 +19,7 @@ jobs:
 
       matrix:
         include:
-          - { rust: 1.64.0, distro: garden, transport: gz-transport12 }
+          - { rust: 1.65.0, distro: garden, transport: gz-transport12 }
           - { rust: stable, distro: fortress, transport: ignition-transport11 }
           - { rust: stable, distro: garden, transport: gz-transport12 }
           - { rust: stable, distro: harmonic, transport: gz-transport13 }
