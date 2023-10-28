@@ -9,7 +9,6 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-env_logger = "0.10"
 gz.workspace = true
 gz-msgs = { workspace = true, no-default-features = true }
 

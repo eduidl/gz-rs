@@ -4,8 +4,6 @@ use gz::transport::Node;
 use gz_msgs::StringMsg;
 
 fn main() {
-    env_logger::init();
-
     let mut node = Node::new().unwrap();
     let mut publisher = node.advertise::<StringMsg>("hello").unwrap();
 
