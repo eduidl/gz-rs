@@ -10,4 +10,4 @@ description = "Internal build crate for gz_msgs"
 
 [dependencies]
 protobuf.workspace = true
-protobuf-codegen = "3"
+protobuf-codegen.workspace = true
