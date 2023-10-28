@@ -19,5 +19,5 @@ gz-msgs8 = { path = "./crates/gz-msgs8", version = "0.6.0" }
 gz-msgs9 = { path = "./crates/gz-msgs9", version = "0.6.0" }
 gz-msgs10 = { path = "./crates/gz-msgs10", version = "0.6.0" }
 gz-transport-sys = { path = "./crates/gz-transport-sys", version = "0.2.0" }
-protobuf = "=3.2.0"
-protobuf-codegen = "=3.2.0"
+protobuf = "=3.3.0"
+protobuf-codegen = "=3.3.0"
