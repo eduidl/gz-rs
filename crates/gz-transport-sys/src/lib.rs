@@ -1,4 +1,5 @@
-#[doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
+
 use std::os::raw::{c_char, c_uint, c_void};
 
 /// wrap `gz::transport::Node`

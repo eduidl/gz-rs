@@ -1,6 +1,6 @@
 [package]
 name = "gz-msgs"
-version = "0.6.0"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true

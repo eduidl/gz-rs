@@ -1,8 +1,10 @@
+#![doc = include_str!("../README.md")]
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse_macro_input;
 
-#[proc_macro_derive(GzMessage, attributes(ser_type_info))]
+#[proc_macro_derive(GzMessage)]
 pub fn gz_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::DeriveInput);
     let type_name = &input.ident;
@@ -18,7 +20,7 @@ pub fn gz_derive(input: TokenStream) -> TokenStream {
     }
 }
 
-#[proc_macro_derive(IgnMessage, attributes(ser_type_info))]
+#[proc_macro_derive(IgnMessage)]
 pub fn ign_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::DeriveInput);
     let type_name = &input.ident;

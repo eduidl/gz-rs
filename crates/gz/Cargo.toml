@@ -1,6 +1,6 @@
 [package]
 name = "gz"
-version = "0.6.0"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -9,14 +9,15 @@ license.workspace = true
 description = "Gazebo client library"
 readme = "README.md"
 keywords = ["gazebo", "robotics", "simulation"]
-include = ["src/**/*.rs"]
 
 [dependencies]
-crossbeam-channel = "0.5.8"
-gz-msgs-common.workspace = true
-gz-transport-sys.workspace = true
-log = "0.4.20"
-
-[dev-dependencies]
-uuid = { version = "1.5.0", features = ["v4"] }
 gz-msgs.workspace = true
+gz-transport.workspace = true
+
+[features]
+fortress = ["gz-msgs/fortress", "gz-transport/fortress"]
+garden = ["gz-msgs/garden", "gz-transport/garden"]
+harmonic = ["gz-msgs/harmonic", "gz-transport/harmonic"]
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]

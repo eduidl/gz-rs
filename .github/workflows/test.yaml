@@ -51,10 +51,10 @@ jobs:
           sudo apt install -yqq lib${{ matrix.transport }}-dev
 
       - name: Check
-        run: cargo build --workspace --features ${{ matrix.distro }}
+        run: cargo build --workspace
 
       - name: Test
-        run: cargo test --workspace --features ${{ matrix.distro }}
+        run: cargo test --workspace
 
   audit:
     runs-on: ubuntu-latest

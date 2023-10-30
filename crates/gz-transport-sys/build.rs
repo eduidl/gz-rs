@@ -2,16 +2,46 @@ use std::{env, error::Error};
 
 use pkg_config::{Config, Library};
 
-fn find_library() -> Result<Library, &'static str> {
-    let candidates = ["gz-transport13", "gz-transport12", "ignition-transport11"];
+#[cfg(all(feature = "fortress", feature = "garden"))]
+compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
+#[cfg(all(feature = "garden", feature = "harmonic"))]
+compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
+#[cfg(all(feature = "fortress", feature = "harmonic"))]
+compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
 
-    for candidate in candidates {
-        if let Ok(library) = Config::new().probe(candidate) {
-            return Ok(library);
+fn find_library() -> Library {
+    if cfg!(feature = "fortress") {
+        Config::new()
+            .probe("ignition-transport11")
+            .expect("fortress feature requires ignition-transport11")
+    } else if cfg!(feature = "garden") {
+        Config::new()
+            .probe("gz-transport12")
+            .expect("garden feature requires gz-transport12")
+    } else if cfg!(feature = "harmonic") {
+        Config::new()
+            .probe("gz-transport13")
+            .expect("harmonic feature requires gz-transport13")
+    } else {
+        // fallback
+
+        let enable_feature = |feature: &str| {
+            println!("cargo:rustc-cfg=feature=\"{}\"", feature);
+        };
+
+        if let Ok(lib) = Config::new().probe("gz-transport13") {
+            enable_feature("harmonic");
+            lib
+        } else if let Ok(lib) = Config::new().probe("gz-transport12") {
+            enable_feature("garden");
+            lib
+        } else if let Ok(lib) = Config::new().probe("ignition-transport11") {
+            enable_feature("fortress");
+            lib
+        } else {
+            panic!("Any Gazebo transport is not found");
         }
     }
-
-    Err("gz-transport or ignition-transport not found")
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -19,7 +49,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
 
-    let library = find_library()?;
+    let library = find_library();
 
     for path in library.link_paths.iter() {
         println!("cargo:rustc-link-search=native={}", path.to_str().unwrap());

@@ -1,12 +1,13 @@
 [package]
 name = "gz-msgs-common"
-version = "0.1.0"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 license.workspace = true
-description = "Interrnal crate for gz-msgs"
+description = "An internal crate for gz-msgs and gz-transport"
+readme = "README.md"
 
 [dependencies]
 protobuf.workspace = true

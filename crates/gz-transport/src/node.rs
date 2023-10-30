@@ -49,7 +49,7 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
+    /// # use gz_transport::Node;
     /// #
     /// let node = Node::new().unwrap();
     /// ```
@@ -62,7 +62,8 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
+    /// # use gz_transport::Node;
+    /// #
     /// let node = Node::with_partition("ns1").unwrap();
     /// ```
     ///
@@ -83,8 +84,9 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
-    /// let node = Node::new().unwrap();
+    /// # use gz_transport::Node;
+    /// #
+    /// # let node = Node::new().unwrap();
     /// for topic in node.topic_list() {
     ///     println!("{}", topic);
     /// }
@@ -101,8 +103,9 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
-    /// let node = Node::new().unwrap();
+    /// # use gz_transport::Node;
+    /// #
+    /// # let node = Node::new().unwrap();
     /// for topic in node.advertised_topics() {
     ///     println!("{}", topic);
     /// }
@@ -119,11 +122,11 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
+    /// # use gz_transport::Node;
     /// use gz_msgs::stringmsg::StringMsg;
-    /// 
-    /// let mut node = Node::new().unwrap();
-    /// let pub_ = node.advertise::<StringMsg>("/hello").unwrap();
+    ///
+    /// # let mut node = Node::new().unwrap();
+    /// let publisher = node.advertise::<StringMsg>("topic_name").unwrap();
     /// ```
     ///
     /// # Panics
@@ -142,8 +145,9 @@ impl Node {
     /// # Exampless
     ///
     /// ```
-    /// # use gz::transport::Node;
-    /// let node = Node::new().unwrap();
+    /// # use gz_transport::Node;
+    /// #
+    /// # let node = Node::new().unwrap();
     /// for topic in node.subscribed_topics() {
     ///     println!("{}", topic);
     /// }
@@ -160,11 +164,13 @@ impl Node {
     /// # Examples
     ///
     /// ```no_run
-    /// # use gz::transport::Node;
+    /// # use gz_transport::Node;
     /// use gz_msgs::stringmsg::StringMsg;
     ///
-    /// let mut node = Node::new().unwrap();
-    /// let rx = node.subscribe_channel::<StringMsg>("/hello", 10).unwrap();
+    /// # let mut node = Node::new().unwrap();
+    /// let rx = node
+    ///     .subscribe_channel::<StringMsg>("topic_name", 10)
+    ///     .unwrap();
     ///
     /// for msg in rx {
     ///     println!("Received: {:?}", msg.data);
@@ -181,10 +187,10 @@ impl Node {
     {
         let (tx, rx) = bounded(bound);
 
-        let ret = self.subscribe::<T, _>(topic, {
+        let ret = self.subscribe(topic, {
             let topic = topic.to_string();
             let rx = rx.clone();
-            move |msg| {
+            move |msg: T| {
                 if tx.is_full() {
                     // dequeue one GzMessage
                     match rx.try_recv() {
@@ -210,19 +216,20 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
+    /// # use gz_transport::Node;
     /// use gz_msgs::stringmsg::StringMsg;
     ///
-    /// let mut node = Node::new().unwrap();
-    /// node.subscribe("/hello", |msg: StringMsg| {
+    /// # let mut node = Node::new().unwrap();
+    /// assert!(node.subscribe("topic_name", |msg: StringMsg| {
     ///     dbg!(msg);
-    /// });
+    /// }));
     /// ```
     ///
     /// # Panics
     ///
     /// - If the topic name is not a valid ASCII string
     /// - If the topic type name is not a valid ASCII string
+    #[must_use]
     pub fn subscribe<T, F>(&mut self, topic: &str, mut callback: F) -> bool
     where
         T: GzMessage,
@@ -269,7 +276,7 @@ impl Node {
         if ret {
             self.callbacks
                 .entry(topic.into())
-                .or_insert_with(Default::default)
+                .or_default()
                 .push(callback);
         }
 
@@ -281,14 +288,15 @@ impl Node {
     /// # Examples
     ///
     /// ```no_run
-    /// # use gz::transport::Node;
-    /// let mut node = Node::new().unwrap();
-    /// assert!(node.unsubscribe("/hello"));
+    /// # use gz_transport::Node;
+    /// # let mut node = Node::new().unwrap();
+    /// assert!(node.unsubscribe("topic_name"));
     /// ```
     ///
     /// # Panics
     ///
     /// - If the topic name is not a valid ASCII string
+    #[must_use]
     pub fn unsubscribe(&mut self, topic: &str) -> bool {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
 
@@ -311,8 +319,9 @@ impl Node {
     /// # Examples
     ///
     /// ```
-    /// # use gz::transport::Node;
-    /// let node = Node::new().unwrap();
+    /// # use gz_transport::Node;
+    /// #
+    /// # let node = Node::new().unwrap();
     /// for service in node.service_list() {
     ///     println!("{}", service);
     /// }
@@ -330,12 +339,12 @@ impl Node {
     ///
     /// ```no_run
     /// # use std::time::Duration;
-    /// # use gz::transport::Node;
-    /// use gz_msgs::stringmsg::StringMsg;
-    ///
-    /// let mut node = Node::new().unwrap();
+    /// # use gz_transport::Node;
+    /// # use gz_msgs::stringmsg::StringMsg;
+    /// #
+    /// # let mut node = Node::new().unwrap();
     /// let (res, ok) = node
-    ///     .request::<StringMsg, StringMsg>("/hello", &Default::default(), Duration::from_secs(1))
+    ///     .request::<StringMsg, StringMsg>("service", &Default::default(), Duration::from_secs(1))
     ///     .unwrap();
     /// ```
     ///

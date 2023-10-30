@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 pub use protobuf;
 use protobuf::Message;
 

@@ -1,6 +1,6 @@
 [package]
 name = "gz-transport-sys"
-version = "0.2.0"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -10,9 +10,13 @@ description = "A low-level Rust wrapper for the Gazebo Transport"
 readme = "README.md"
 keywords = ["gazebo", "robotics", "simulation"]
 categories = ["external-ffi-bindings"]
-links = "gz-transport12"
 exclude = [".clang-format"]
 
 [build-dependencies]
 cc = "1.0.83"
-pkg-config = "0.3.27"
+pkg-config.workspace = true
+
+[features]
+fortress = []
+garden = []
+harmonic = []
