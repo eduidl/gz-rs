@@ -7,9 +7,11 @@ compile_error!("Only one of the following features can be enabled: fortress, gar
 
 #[cfg(not(feature = "generate"))]
 fn main() {
+    use std::env;
+
     use pkg_config::Config;
 
-    if cfg!(docsrs) {
+    if env::var("DOCS_RS").is_ok() {
         return;
     }
 
