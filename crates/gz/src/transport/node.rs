@@ -120,8 +120,10 @@ impl Node {
     ///
     /// ```
     /// # use gz::transport::Node;
+    /// use gz_msgs::stringmsg::StringMsg;
+    /// 
     /// let mut node = Node::new().unwrap();
-    /// let pub_ = node.advertise::<gz_msgs::StringMsg>("/hello").unwrap();
+    /// let pub_ = node.advertise::<StringMsg>("/hello").unwrap();
     /// ```
     ///
     /// # Panics
@@ -159,7 +161,7 @@ impl Node {
     ///
     /// ```no_run
     /// # use gz::transport::Node;
-    /// use gz_msgs::StringMsg;
+    /// use gz_msgs::stringmsg::StringMsg;
     ///
     /// let mut node = Node::new().unwrap();
     /// let rx = node.subscribe_channel::<StringMsg>("/hello", 10).unwrap();
@@ -209,10 +211,10 @@ impl Node {
     ///
     /// ```
     /// # use gz::transport::Node;
-    /// use gz_msgs::StringMsg;
+    /// use gz_msgs::stringmsg::StringMsg;
     ///
     /// let mut node = Node::new().unwrap();
-    /// node.subscribe::<gz_msgs::StringMsg, _>("/hello", |msg| {
+    /// node.subscribe("/hello", |msg: StringMsg| {
     ///     dbg!(msg);
     /// });
     /// ```
@@ -329,13 +331,11 @@ impl Node {
     /// ```no_run
     /// # use std::time::Duration;
     /// # use gz::transport::Node;
+    /// use gz_msgs::stringmsg::StringMsg;
+    ///
     /// let mut node = Node::new().unwrap();
     /// let (res, ok) = node
-    ///     .request::<gz_msgs::StringMsg, gz_msgs::StringMsg>(
-    ///         "/hello",
-    ///         &Default::default(),
-    ///         Duration::from_secs(1),
-    ///     )
+    ///     .request::<StringMsg, StringMsg>("/hello", &Default::default(), Duration::from_secs(1))
     ///     .unwrap();
     /// ```
     ///
