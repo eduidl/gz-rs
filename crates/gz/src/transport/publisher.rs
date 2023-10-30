@@ -41,9 +41,10 @@ impl<T: GzMessage> Publisher<T> {
     ///
     /// ```
     /// use gz::transport::Node;
+    /// use gz_msgs::stringmsg::StringMsg;
     ///
     /// let mut node = Node::new().unwrap();
-    /// let mut pub_ = node.advertise::<gz_msgs::StringMsg>("/hello").unwrap();
+    /// let mut pub_ = node.advertise::<StringMsg>("/hello").unwrap();
     /// pub_.publish(&Default::default());
     /// ```
     ///
