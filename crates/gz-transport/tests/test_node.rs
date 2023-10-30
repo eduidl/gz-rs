@@ -7,8 +7,8 @@ use std::{
     time::Duration,
 };
 
-use gz::transport::Node;
 use gz_msgs::{stringmsg::StringMsg, vector3d::Vector3d};
+use gz_transport::Node;
 use uuid::Uuid;
 
 #[test]
@@ -42,7 +42,7 @@ fn test_node_topic_list() {
     assert!(node1.topic_list().is_empty());
 
     let _p1 = node2.advertise::<StringMsg>("hoge").unwrap();
-    assert!(node2.subscribe::<StringMsg, _>("/fuga/hoge", |_msg| {}));
+    assert!(node2.subscribe("/fuga/hoge", |_msg: StringMsg| {}));
 
     let topics = node1.topic_list();
 
@@ -72,8 +72,8 @@ fn test_node_subscribed_list() {
 
     assert!(node.subscribed_topics().is_empty());
 
-    assert!(node.subscribe::<StringMsg, _>("hoge", |_msg| {}));
-    assert!(node.subscribe::<StringMsg, _>("/fuga/hoge", |_msg| {}));
+    assert!(node.subscribe("hoge", |_msg: StringMsg| {}));
+    assert!(node.subscribe("/fuga/hoge", |_msg: StringMsg| {}));
 
     let topics = node.subscribed_topics();
 
@@ -92,13 +92,13 @@ fn test_node_pub_sub() {
     let counter = Arc::new(AtomicU8::new(0));
     {
         let counter = Arc::clone(&counter);
-        sub_node.subscribe::<StringMsg, _>("hoge", move |msg| {
+        assert!(sub_node.subscribe("hoge", move |msg: StringMsg| {
             assert_eq!(msg.data, "Hello, world!");
             counter.fetch_add(1, Ordering::Relaxed);
-        });
+        }));
     }
 
-    let mut publisher = pub_node.advertise::<StringMsg>("hoge").unwrap();
+    let mut publisher = pub_node.advertise("hoge").unwrap();
 
     let msg = StringMsg {
         data: "Hello, world!".to_string(),
@@ -123,15 +123,15 @@ fn test_node_pub_sub_include_null_characters() {
     let counter = Arc::new(AtomicU8::new(0));
     {
         let counter = Arc::clone(&counter);
-        sub_node.subscribe::<Vector3d, _>("hoge", move |msg| {
+        assert!(sub_node.subscribe("hoge", move |msg: Vector3d| {
             assert_eq!(msg.x, 1.0);
             assert_eq!(msg.y, 0.0);
             assert_eq!(msg.z, 0.0);
             counter.fetch_add(1, Ordering::Relaxed);
-        });
+        }));
     }
 
-    let mut publisher = pub_node.advertise::<Vector3d>("hoge").unwrap();
+    let mut publisher = pub_node.advertise("hoge").unwrap();
 
     let msg = Vector3d {
         x: 1.0,

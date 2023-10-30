@@ -1,11 +1,10 @@
-use gz::transport::Node;
-use gz_msgs::stringmsg::StringMsg;
+use gz::{msgs::stringmsg::StringMsg, transport::Node};
 
 fn main() {
     let mut node = Node::new().unwrap();
-    node.subscribe::<StringMsg, _>("/hello", |msg| {
-        println!("{}", msg.data);
-    });
+    assert!(node.subscribe("topic", |msg: StringMsg| {
+        println!("Subscribed: {}", msg.data);
+    }));
 
     gz::transport::wait_for_shutdown();
 }

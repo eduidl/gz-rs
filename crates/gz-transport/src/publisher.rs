@@ -10,7 +10,18 @@ use gz_transport_sys as ffi;
 
 use super::Node;
 
-/// A publisher of a topic
+/// A publisher of a topic.<br>
+/// To instantiate a publisher, use [`Node::advertise`]
+///
+/// # Examples
+///
+/// ```
+/// use gz_msgs::stringmsg::StringMsg;
+/// use gz_transport::Node;
+///
+/// let mut node = Node::new().unwrap();
+/// let publisher = node.advertise::<StringMsg>("topic_name").unwrap();
+/// ```
 pub struct Publisher<T: GzMessage> {
     r#impl: NonNull<ffi::Publisher>,
     buf: Vec<u8>,
@@ -40,17 +51,22 @@ impl<T: GzMessage> Publisher<T> {
     /// # Examples
     ///
     /// ```
-    /// use gz::transport::Node;
     /// use gz_msgs::stringmsg::StringMsg;
+    /// # use gz_transport::Node;
     ///
-    /// let mut node = Node::new().unwrap();
-    /// let mut pub_ = node.advertise::<StringMsg>("/hello").unwrap();
-    /// pub_.publish(&Default::default());
+    /// # let mut node = Node::new().unwrap();
+    /// # let mut publisher = node.advertise::<StringMsg>("/hello").unwrap();
+    /// let msg = StringMsg {
+    ///     data: "Hello, world!".into(),
+    ///     ..Default::default()
+    /// };
+    /// assert!(publisher.publish(&msg));
     /// ```
     ///
     /// # Panics
     ///
     /// - If the message cannot be serialized
+    #[must_use]
     pub fn publish(&mut self, msg: &T) -> bool {
         unsafe { self.buf.set_len(0) };
         msg.write_to_vec(&mut self.buf)

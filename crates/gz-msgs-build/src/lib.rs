@@ -1,4 +1,6 @@
-use std::{env, fs};
+#![doc = include_str!("../README.md")]
+
+use std::{fs, path::PathBuf};
 
 use protobuf::reflect::MessageDescriptor;
 use protobuf_codegen::{Codegen, Customize, CustomizeCallback};
@@ -6,7 +8,7 @@ use protobuf_codegen::{Codegen, Customize, CustomizeCallback};
 struct GenIgnMessage;
 
 impl CustomizeCallback for GenIgnMessage {
-    fn message(&self, _message: &MessageDescriptor) -> protobuf_codegen::Customize {
+    fn message(&self, _message: &MessageDescriptor) -> Customize {
         Customize::default().before("#[derive(::gz_msgs_common::IgnMessage)]")
     }
 }
@@ -14,21 +16,18 @@ impl CustomizeCallback for GenIgnMessage {
 struct GenGzMessage;
 
 impl CustomizeCallback for GenGzMessage {
-    fn message(&self, _message: &MessageDescriptor) -> protobuf_codegen::Customize {
+    fn message(&self, _message: &MessageDescriptor) -> Customize {
         Customize::default().before("#[derive(::gz_msgs_common::GzMessage)]")
     }
 }
 
-pub fn build(is_ignition: bool) -> Result<(), Box<dyn std::error::Error>> {
-    println!("cargo:rerun-if-changed=build.rs");
-
+pub fn build(branch: &str, is_ignition: bool) -> Result<(), Box<dyn std::error::Error>> {
     let mut protos = vec![];
 
-    let dir = if is_ignition {
-        "3rdparty/gz-msgs/proto/ignition/msgs"
-    } else {
-        "3rdparty/gz-msgs/proto/gz/msgs"
-    };
+    let proto_dir = PathBuf::new().join("3rdparty").join(branch).join("proto");
+    let dir = proto_dir
+        .join(if is_ignition { "ignition" } else { "gz" })
+        .join("msgs");
 
     for entry in fs::read_dir(dir)? {
         let path = entry?.path();
@@ -47,15 +46,14 @@ pub fn build(is_ignition: bool) -> Result<(), Box<dyn std::error::Error>> {
         codegen.customize_callback(GenGzMessage)
     };
 
-    let ret = codegen
-        .out_dir("./src/msgs")
-        .inputs(&protos)
-        .include("3rdparty/gz-msgs/proto")
-        .run();
+    let out_dir = PathBuf::new().join("src").join(branch.replace('-', "_"));
+    let _ = fs::create_dir(&out_dir);
 
-    if env::var("DOCS_RS").is_err() {
-        ret?;
-    }
+    codegen
+        .out_dir(&out_dir)
+        .inputs(&protos)
+        .include(&proto_dir)
+        .run()?;
 
     Ok(())
 }

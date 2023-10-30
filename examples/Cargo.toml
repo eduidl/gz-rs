@@ -10,9 +10,8 @@ license.workspace = true
 
 [dependencies]
 gz.workspace = true
-gz-msgs = { workspace = true, no-default-features = true }
 
 [features]
-fortress = ["gz-msgs/fortress"]
-garden = ["gz-msgs/garden"]
-harmonic = ["gz-msgs/harmonic"]
+fortress = ["gz/fortress"]
+garden = ["gz/garden"]
+harmonic = ["gz/harmonic"]
