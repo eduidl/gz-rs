@@ -8,7 +8,7 @@ use std::{
 };
 
 use gz::transport::Node;
-use gz_msgs::{StringMsg, Vector3d};
+use gz_msgs::{stringmsg::StringMsg, vector3d::Vector3d};
 use uuid::Uuid;
 
 #[test]

@@ -1,5 +1,5 @@
 use gz::transport::Node;
-use gz_msgs::StringMsg;
+use gz_msgs::stringmsg::StringMsg;
 
 fn main() {
     let mut node = Node::new().unwrap();

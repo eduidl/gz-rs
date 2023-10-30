@@ -3,22 +3,23 @@
 set -euo pipefail
 
 function main() {
-    local -rA crate_branches=(
-        ["gz-msgs8"]=ign-msgs8
-        ["gz-msgs9"]=gz-msgs9
-        ["gz-msgs10"]=gz-msgs10
+    local -ra branches=(
+        ign-msgs8
+        gz-msgs9
+        gz-msgs10
     )
 
     cd "$(dirname "$0")"
 
-    for crate in "${!crate_branches[@]}"; do
-        pushd ./crates/"${crate}"/3rdparty/gz-msgs
+    for branch in "${branches[@]}"; do
+        pushd ./crates/gz-msgs/3rdparty/"${branch}"
         git fetch
-        git checkout "${crate_branches[${crate}]}"
+        git checkout "${branch}"
         git pull
-        cargo build
         popd
     done
+
+    cargo build -p gz-msgs --features generate
 }
 
 main
