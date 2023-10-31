@@ -69,6 +69,7 @@ extern "C" {
         node: &mut Node,
         topic: *const c_char,
         req: *const c_char,
+        req_len: usize,
         reqtype: *const c_char,
         restype: *const c_char,
         timeout: c_uint,
