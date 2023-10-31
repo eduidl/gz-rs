@@ -6,6 +6,8 @@
     doc = "In docs.rs, documentation for all features are provided. However, when you use this crate, you can only use one of the modules, and its contents are re-exported directly under the crate."
 )]
 
+pub use gz_msgs_common::protobuf;
+
 #[cfg(any(feature = "fortress", feature = "generate", docsrs))]
 #[cfg_attr(docsrs, doc(cfg(feature = "fortress")))]
 /// [Gazebo Message 8.7.0](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.0)
