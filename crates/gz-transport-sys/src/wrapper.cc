@@ -115,6 +115,7 @@ StringVec* nodeServiceList(const Node* node) {
 bool nodeRequest(Node* node,
                  const char* topic,
                  const char* _req,
+                 size_t req_len,
                  const char* reqtype,
                  const char* restype,
                  unsigned int timeout,
@@ -126,7 +127,7 @@ bool nodeRequest(Node* node,
   if (!req) {
     return false;
   }
-  req->ParseFromString(_req);
+  req->ParseFromString(std::string(_req, req_len));
 
   std::unique_ptr<google::protobuf::Message> res =
       gz::msgs::Factory::New(restype);

@@ -39,6 +39,7 @@ StringVec* nodeServiceList(const Node*);
 bool nodeRequest(Node* node,
                  const char* topic,
                  const char* req,
+                 size_t req_len,
                  const char* reqtype,
                  const char* restype,
                  unsigned int timeout,

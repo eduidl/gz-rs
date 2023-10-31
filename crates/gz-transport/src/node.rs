@@ -378,6 +378,7 @@ impl Node {
                 self.raw_mut(),
                 ctopic_name.as_ptr(),
                 req_serialized.as_ptr() as *const c_char,
+                req_serialized.len(),
                 creq_type.as_ptr(),
                 cres_type.as_ptr(),
                 timeout.as_millis() as c_uint,
