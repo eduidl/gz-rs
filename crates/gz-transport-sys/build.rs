@@ -60,6 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     cc::Build::new()
         .cpp(true)
+        .std("c++17")
         .file("src/wrapper.cc")
         .includes(library.include_paths)
         .compile("ignition_wrapper.a");
