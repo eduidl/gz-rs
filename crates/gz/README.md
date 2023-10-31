@@ -49,7 +49,7 @@ assert!(publisher.publish(&topic));
 
 ### Example: Subscribe (callback)
 
-```no_run
+```rust,no_run
 use gz::{msgs::stringmsg::StringMsg, transport::Node};
 
 let mut node = Node::new().unwrap();
@@ -64,7 +64,7 @@ gz::transport::wait_for_shutdown();
 
 `subscribe_channel` also uses callbacks internally. However, `subscribe_channel` may be easier to use when ownership is involved.
 
-```no_run
+```rust,no_run
 use gz::{msgs::stringmsg::StringMsg, transport::Node};
 
 let mut node = Node::new().unwrap();
