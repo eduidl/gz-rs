@@ -21,3 +21,8 @@ gz-transport-sys = { path = "./crates/gz-transport-sys", version = "=0.7.4" }
 pkg-config = "0.3.27"
 protobuf = "=3.3.0"
 protobuf-codegen = "=3.3.0"
+
+[workspace.metadata.release]
+allow-branch = ["main"]
+shared-version = true
+tag-prefix = ""
