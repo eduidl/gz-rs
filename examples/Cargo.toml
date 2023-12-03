@@ -15,3 +15,6 @@ gz.workspace = true
 fortress = ["gz/fortress"]
 garden = ["gz/garden"]
 harmonic = ["gz/harmonic"]
+
+[package.metadata.release]
+release = false

@@ -1,0 +1,9 @@
+allow-branch = ["main"]
+shared-version = true
+tag-prefix = ""
+
+[[pre-release-replacements]]
+file = "README.md"
+search = "(gz.*) = \\{ version = \"[0-9\\.]+\"(.*) }"
+replace = "$1 = { version = \"{{version}}\"$2 }"
+min = 0
