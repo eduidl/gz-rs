@@ -20,7 +20,7 @@ Gazebo version can be specified by feature flag (`fortress`, `garden` or `harmon
 
 ```toml
 [dependencies]
-gz = { version = "0.7.3", features = ["garden"] }
+gz = { version = "0.7.4", features = ["garden"] }
 ```
 
 ## Dependencies
