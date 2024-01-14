@@ -49,27 +49,22 @@ jobs:
         include:
           - os: ubuntu-latest
             rust: stable
-            distro: fortress
             transport: ignition-transport11
 
           - os: ubuntu-latest
             rust: stable
-            distro: garden
             transport: gz-transport12
 
           - os: ubuntu-latest
             rust: stable
-            distro: harmonic
             transport: gz-transport13
 
           - os: ubuntu-latest
             rust: beta
-            distro: harmonic
             transport: gz-transport13
 
           - os: ubuntu-latest
             rust: nightly
-            distro: harmonic
             transport: gz-transport13
 
     runs-on: ${{ matrix.os }}
