@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Setup Rust MSRV
         uses: dtolnay/rust-toolchain@master
         with:
