@@ -35,7 +35,7 @@ jobs:
             "http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
             | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
           sudo apt update -qq
-          sudo apt install -yqq lib$gz-transport13-dev
+          sudo apt install -yqq libgz-transport13-dev
 
       - name: Cargo lock
         run: cargo +nightly update -Z minimal-versions
