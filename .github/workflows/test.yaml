@@ -11,8 +11,38 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  MSRV: 1.65.0
 
 jobs:
+  check-msrv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Rust MSRV
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.MSRV }}
+
+      - name: Setup Rust nightly
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+
+      - name: Install Gazebo
+        run: |
+          sudo wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg]" \
+            "http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
+            | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+          sudo apt update -qq
+          sudo apt install -yqq lib$gz-transport13-dev
+
+      - name: Cargo lock
+        run: cargo +nightly update -Z minimal-versions
+
+      - name: Cargo check
+        run: cargo +${{ env.MSRV }} check --workspace
+
   test:
     strategy:
       matrix:
@@ -26,11 +56,6 @@ jobs:
             rust: stable
             distro: garden
             transport: gz-transport12
-
-          - os: ubuntu-latest
-            rust: 1.65.0
-            distro: harmonic
-            transport: gz-transport13
 
           - os: ubuntu-latest
             rust: stable
