@@ -11,53 +11,68 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  MSRV: 1.64.0
 
 jobs:
+  check-msrv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust MSRV
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.MSRV }}
+
+      - name: Setup Rust nightly
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+
+      - name: Install Gazebo
+        run: |
+          sudo wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg]" \
+            "http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
+            | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+          sudo apt update -qq
+          sudo apt install -yqq libgz-transport13-dev
+
+      - name: Cargo lock
+        run: cargo +nightly update -Z minimal-versions --workspace
+
+      - name: Cargo check
+        run: cargo +${{ env.MSRV }} check --workspace
+
   test:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             rust: stable
-            distro: fortress
             transport: ignition-transport11
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             rust: stable
-            distro: garden
             transport: gz-transport12
 
           - os: ubuntu-latest
             rust: stable
-            distro: garden
-            transport: gz-transport12
-
-          - os: ubuntu-latest
-            rust: 1.65.0
-            distro: harmonic
-            transport: gz-transport13
-
-          - os: ubuntu-latest
-            rust: stable
-            distro: harmonic
             transport: gz-transport13
 
           - os: ubuntu-latest
             rust: beta
-            distro: harmonic
             transport: gz-transport13
 
           - os: ubuntu-latest
             rust: nightly
-            distro: harmonic
             transport: gz-transport13
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+      - uses: actions/checkout@v4
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
@@ -86,12 +101,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v4
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
