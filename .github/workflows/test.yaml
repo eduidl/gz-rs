@@ -91,11 +91,6 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-
       - name: Install Tools
         run: cargo install cargo-audit cargo-outdated
 
