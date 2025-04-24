@@ -1,9 +1,14 @@
-#[cfg(all(feature = "fortress", feature = "garden"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
-#[cfg(all(feature = "garden", feature = "harmonic"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
-#[cfg(all(feature = "fortress", feature = "harmonic"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
+#[cfg(any(
+    all(feature = "fortress", feature = "garden"),
+    all(feature = "fortress", feature = "harmonic"),
+    all(feature = "fortress", feature = "ionic"),
+    all(feature = "garden", feature = "harmonic"),
+    all(feature = "garden", feature = "ionic"),
+    all(feature = "harmonic", feature = "ionic"),
+))]
+compile_error!(
+    "Only one of the following features can be enabled: fortress, garden, harmonic, ionic"
+);
 
 #[cfg(not(feature = "generate"))]
 fn main() {
@@ -27,6 +32,10 @@ fn main() {
         Config::new()
             .probe("gz-transport13")
             .expect("harmonic feature requires gz-transport13");
+    } else if cfg!(feature = "ionic") {
+        Config::new()
+            .probe("gz-transport14")
+            .expect("ionic feature requires gz-transport14");
     } else {
         // fallback
 
@@ -34,7 +43,9 @@ fn main() {
             println!("cargo:rustc-cfg=feature=\"{}\"", feature);
         };
 
-        if Config::new().probe("gz-transport13").is_ok() {
+        if Config::new().probe("gz-transport14").is_ok() {
+            enable_feature("ionic");
+        } else if Config::new().probe("gz-transport13").is_ok() {
             enable_feature("harmonic");
         } else if Config::new().probe("gz-transport12").is_ok() {
             enable_feature("garden");
@@ -53,6 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     build("ign-msgs8", true)?;
     build("gz-msgs9", false)?;
     build("gz-msgs10", false)?;
+    build("gz-msgs11", false)?;
 
     Ok(())
 }

@@ -14,8 +14,9 @@ This crate is supporting following versions of Gazebo.
 - Fortress
 - Garden
 - Harmonic
+- Ionic
 
-Gazebo version can be specified by a feature flag (`fortress`, `garden` or `harmonic`). If not specified, the version is determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.
+Gazebo version can be specified by a feature flag (`fortress`, `garden`, `harmonic` or `ionic`). If not specified, the version is determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.
 
 ```toml
 [dependencies]

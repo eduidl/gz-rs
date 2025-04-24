@@ -28,3 +28,10 @@ pub use gz_msgs9::*;
 pub mod gz_msgs10;
 #[cfg(feature = "harmonic")]
 pub use gz_msgs10::*;
+
+#[cfg(any(feature = "ionic", feature = "generate", docsrs))]
+#[cfg_attr(docsrs, doc(cfg(feature = "ionic")))]
+/// [Gazebo Message 11.0.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.0.2)
+pub mod gz_msgs11;
+#[cfg(feature = "ionic")]
+pub use gz_msgs11::*;

@@ -9,10 +9,11 @@ Rust implementation of [Gazebo Messages](https://github.com/gazebosim/gz-msgs) u
 | Fortress       | [8.7.0](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.0) |
 | Garden         | [9.5.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs9_9.5.0)       |
 | Harmonic       | [10.0.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.0.0)    |
+| Ionic          | [11.0.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.0.2)    |
 
 This crate is supporting multiple versions of Gazebo messages. The version is determined by the feature flag or using pkg-config.
 
-If you specify any feature flag (`fortress`, `garden` or `harmonic`), the messages from the specified version will be used. Naturally, if more than one is specified, a compile error will occur.
+If you specify any feature flag (`fortress`, `garden`, `harmonic` or `ionic`), the messages from the specified version will be used. Naturally, if more than one is specified, a compile error will occur.
 
 ```toml
 [dependencies]
