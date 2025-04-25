@@ -9,9 +9,10 @@ Rust wrapper for [Gazebo Transport](https://github.com/gazebosim/gz-transport).
 | Fortress       | 11                       |
 | Garden         | 12                       |
 | Harmonic       | 13                       |
+| Ionic          | 14                       |
 
 This crate is supporting multiple versions of Gazebo Transport. The version is determined by the feature flag or using pkg-config.
-If any feature flag (`fortress`, `garden` or `harmonic`) is specified, the related version of gz-transport library will be linked. Naturally, if more than one is specified, a compile error will occur.
+If any feature flag (`fortress`, `garden`, `harmonic` or `ionic`) is specified, the related version of gz-transport library will be linked. Naturally, if more than one is specified, a compile error will occur.
 
 ```toml
 [dependencies]

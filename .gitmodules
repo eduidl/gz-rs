@@ -10,3 +10,7 @@
 	path = crates/gz-msgs/3rdparty/ign-msgs8
 	url = git@github.com:gazebosim/gz-msgs.git
 	branch = ign-msgs8
+[submodule "crates/gz-msgs/3rdparty/gz-msgs11"]
+	path = crates/gz-msgs/3rdparty/gz-msgs11
+	url = git@github.com:gazebosim/gz-msgs.git
+	branch = gz-msgs11

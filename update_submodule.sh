@@ -7,6 +7,7 @@ function main() {
         ign-msgs8
         gz-msgs9
         gz-msgs10
+        gz-msgs11
     )
 
     cd "$(dirname "$0")"

@@ -6,12 +6,18 @@
     clippy::nursery
 )]
 
-#[cfg(all(feature = "fortress", feature = "garden"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
-#[cfg(all(feature = "garden", feature = "harmonic"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
-#[cfg(all(feature = "fortress", feature = "harmonic"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
+
+#[cfg(any(
+    all(feature = "fortress", feature = "garden"),
+    all(feature = "fortress", feature = "harmonic"),
+    all(feature = "fortress", feature = "ionic"),
+    all(feature = "garden", feature = "harmonic"),
+    all(feature = "garden", feature = "ionic"),
+    all(feature = "harmonic", feature = "ionic"),
+))]
+compile_error!(
+    "Only one of the following features can be enabled: fortress, garden, harmonic, ionic"
+);
 
 mod node;
 mod publisher;

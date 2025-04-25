@@ -2,12 +2,17 @@ use std::{env, error::Error};
 
 use pkg_config::{Config, Library};
 
-#[cfg(all(feature = "fortress", feature = "garden"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
-#[cfg(all(feature = "garden", feature = "harmonic"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
-#[cfg(all(feature = "fortress", feature = "harmonic"))]
-compile_error!("Only one of the following features can be enabled: fortress, garden, harmonic");
+#[cfg(any(
+    all(feature = "fortress", feature = "garden"),
+    all(feature = "fortress", feature = "harmonic"),
+    all(feature = "fortress", feature = "ionic"),
+    all(feature = "garden", feature = "harmonic"),
+    all(feature = "garden", feature = "ionic"),
+    all(feature = "harmonic", feature = "ionic"),
+))]
+compile_error!(
+    "Only one of the following features can be enabled: fortress, garden, harmonic, ionic"
+);
 
 fn find_library() -> Library {
     if cfg!(feature = "fortress") {
@@ -22,6 +27,10 @@ fn find_library() -> Library {
         Config::new()
             .probe("gz-transport13")
             .expect("harmonic feature requires gz-transport13")
+    } else if cfg!(feature = "ionic") {
+        Config::new()
+            .probe("gz-transport14")
+            .expect("ionic feature requires gz-transport14")
     } else {
         // fallback
 
@@ -29,7 +38,10 @@ fn find_library() -> Library {
             println!("cargo:rustc-cfg=feature=\"{}\"", feature);
         };
 
-        if let Ok(lib) = Config::new().probe("gz-transport13") {
+        if let Ok(lib) = Config::new().probe("gz-transport14") {
+            enable_feature("ionic");
+            lib
+        } else if let Ok(lib) = Config::new().probe("gz-transport13") {
             enable_feature("harmonic");
             lib
         } else if let Ok(lib) = Config::new().probe("gz-transport12") {
