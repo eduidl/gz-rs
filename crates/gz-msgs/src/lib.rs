@@ -24,7 +24,7 @@ pub use gz_msgs9::*;
 
 #[cfg(any(feature = "harmonic", feature = "generate", docsrs))]
 #[cfg_attr(docsrs, doc(cfg(feature = "harmonic")))]
-/// [Gazebo Message 10.3.2](tps://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.3.2)
+/// [Gazebo Message 10.3.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.3.2)
 pub mod gz_msgs10;
 #[cfg(feature = "harmonic")]
 pub use gz_msgs10::*;
