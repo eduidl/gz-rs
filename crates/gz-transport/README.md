@@ -7,7 +7,7 @@ Rust wrapper for [Gazebo Transport](https://github.com/gazebosim/gz-transport).
 | Gazebo version | Gazebo Transport version |
 | -------------- | ------------------------ |
 | Fortress       | 11                       |
-| Garden         | 12                       |
+| Garden (EOL)   | 12                       |
 | Harmonic       | 13                       |
 | Ionic          | 14                       |
 
@@ -16,7 +16,7 @@ If any feature flag (`fortress`, `garden`, `harmonic` or `ionic`) is specified, 
 
 ```toml
 [dependencies]
-gz-transport = { version = "0.7.4", features = ["garden"] }
+gz-transport = { version = "0.7.4", features = ["harmonic"] }
 ```
 
 Otherwise, no feature flag is specified, the version if determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.

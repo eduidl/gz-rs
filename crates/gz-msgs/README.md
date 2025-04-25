@@ -7,8 +7,8 @@ Rust implementation of [Gazebo Messages](https://github.com/gazebosim/gz-msgs) u
 | Gazebo version | Gazebo Messages version                                                 |
 | -------------- | ----------------------------------------------------------------------- |
 | Fortress       | [8.7.0](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.0) |
-| Garden         | [9.5.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs9_9.5.0)       |
-| Harmonic       | [10.0.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.0.0)    |
+| Garden (EOL)   | [9.5.1](https://github.com/gazebosim/gz-msgs/tree/gz-msgs9_9.5.1)       |
+| Harmonic       | [10.3.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.3.2)    |
 | Ionic          | [11.0.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.0.2)    |
 
 This crate is supporting multiple versions of Gazebo messages. The version is determined by the feature flag or using pkg-config.
@@ -17,7 +17,7 @@ If you specify any feature flag (`fortress`, `garden`, `harmonic` or `ionic`), t
 
 ```toml
 [dependencies]
-gz-msgs = { version = "0.7.4", features = ["garden"] }
+gz-msgs = { version = "0.7.4", features = ["harmonic"] }
 ```
 
 Otherwise, no feature flag is specified, the version is determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.

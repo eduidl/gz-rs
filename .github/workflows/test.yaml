@@ -1,9 +1,6 @@
 name: Test
 
 on:
-  schedule:
-    - cron: "0 12 * * 6"
-
   push:
     branches: ["main"]
   pull_request:
@@ -11,7 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  MSRV: 1.64.0
+  MSRV: 1.81.0
 
 jobs:
   check-msrv:
@@ -47,25 +44,26 @@ jobs:
 
   test:
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             rust: stable
             transport: ignition-transport11
 
-          - os: ubuntu-latest
-            rust: stable
-            transport: gz-transport12
-
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             rust: stable
             transport: gz-transport13
 
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
+            rust: stable
+            transport: gz-transport14
+
+          - os: ubuntu-24.04
             rust: beta
             transport: gz-transport13
 
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             rust: nightly
             transport: gz-transport13
 

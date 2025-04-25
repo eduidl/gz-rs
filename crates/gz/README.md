@@ -12,7 +12,7 @@ This crate contains following crates and re-exports them.
 This crate is supporting following versions of Gazebo.
 
 - Fortress
-- Garden
+- Garden (EOL)
 - Harmonic
 - Ionic
 
@@ -20,7 +20,7 @@ Gazebo version can be specified by a feature flag (`fortress`, `garden`, `harmon
 
 ```toml
 [dependencies]
-gz = { version = "0.7.4", features = ["garden"] }
+gz = { version = "0.7.4", features = ["harmonic"] }
 ```
 
 ## Dependencies
