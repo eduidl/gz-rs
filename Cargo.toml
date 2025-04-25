@@ -3,7 +3,7 @@ members = ["crates/*", "examples"]
 resolver = "2"
 
 [workspace.package]
-version = "0.7.4"
+version = "0.8.0"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
 rust-version = "1.81.0"
@@ -11,13 +11,13 @@ repository = "https://github.com/eduidl/gz-rs"
 license = "Apache-2.0"
 
 [workspace.dependencies]
-gz = { path = "./crates/gz", version = "=0.7.4" }
-gz-msgs = { path = "./crates/gz-msgs", version = "=0.7.4" }
-gz-msgs-build = { path = "./crates/gz-msgs-build", version = "=0.7.4" }
-gz-msgs-common = { path = "./crates/gz-msgs-common", version = "=0.7.4" }
-gz-msgs-derive = { path = "./crates/gz-msgs-derive", version = "=0.7.4" }
-gz-transport = { path = "./crates/gz-transport", version = "=0.7.4" }
-gz-transport-sys = { path = "./crates/gz-transport-sys", version = "=0.7.4" }
+gz = { path = "./crates/gz", version = "=0.8.0" }
+gz-msgs = { path = "./crates/gz-msgs", version = "=0.8.0" }
+gz-msgs-build = { path = "./crates/gz-msgs-build", version = "=0.8.0" }
+gz-msgs-common = { path = "./crates/gz-msgs-common", version = "=0.8.0" }
+gz-msgs-derive = { path = "./crates/gz-msgs-derive", version = "=0.8.0" }
+gz-transport = { path = "./crates/gz-transport", version = "=0.8.0" }
+gz-transport-sys = { path = "./crates/gz-transport-sys", version = "=0.8.0" }
 pkg-config = "0.3.27"
 protobuf = "=3.7.2"
 protobuf-codegen = "=3.7.2"
