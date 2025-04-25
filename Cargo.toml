@@ -6,7 +6,7 @@ resolver = "2"
 version = "0.7.4"
 authors = ["Yume Hiramatsu <yuma.hiramatsu@gmail.com>"]
 edition = "2021"
-rust-version = "1.64.0"
+rust-version = "1.81.0"
 repository = "https://github.com/eduidl/gz-rs"
 license = "Apache-2.0"
 
