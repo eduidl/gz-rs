@@ -1,9 +1,6 @@
 name: Test
 
 on:
-  schedule:
-    - cron: "0 12 * * 6"
-
   push:
     branches: ["main"]
   pull_request:
@@ -60,6 +57,10 @@ jobs:
           - os: ubuntu-latest
             rust: stable
             transport: gz-transport13
+
+          - os: ubuntu-latest
+            rust: stable
+            transport: gz-transport14
 
           - os: ubuntu-latest
             rust: beta
