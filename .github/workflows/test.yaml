@@ -52,10 +52,6 @@ jobs:
 
           - os: ubuntu-latest
             rust: stable
-            transport: gz-transport12
-
-          - os: ubuntu-latest
-            rust: stable
             transport: gz-transport13
 
           - os: ubuntu-latest
