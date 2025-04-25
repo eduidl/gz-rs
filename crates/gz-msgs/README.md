@@ -17,7 +17,7 @@ If you specify any feature flag (`fortress`, `garden`, `harmonic` or `ionic`), t
 
 ```toml
 [dependencies]
-gz-msgs = { version = "0.8.0", features = ["harmonic"] }
+gz-msgs = { version = "0.9.0", features = ["harmonic"] }
 ```
 
 Otherwise, no feature flag is specified, the version is determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.
