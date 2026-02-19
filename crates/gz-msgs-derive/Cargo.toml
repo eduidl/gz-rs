@@ -8,6 +8,7 @@ repository.workspace = true
 license.workspace = true
 description = "Internally used derive macro for gz-msgs"
 readme = "README.md"
+include.workspace = true
 
 [lib]
 proc-macro = true

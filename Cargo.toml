@@ -9,6 +9,7 @@ edition = "2021"
 rust-version = "1.81.0"
 repository = "https://github.com/eduidl/gz-rs"
 license = "Apache-2.0"
+include = ["src/**", "build.rs", "Cargo.toml", "README.md"]
 
 [workspace.dependencies]
 gz = { path = "./crates/gz", version = "=0.9.0" }

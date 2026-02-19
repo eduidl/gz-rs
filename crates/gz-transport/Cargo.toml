@@ -8,6 +8,7 @@ repository.workspace = true
 license.workspace = true
 description = "Rust wrapper for Gazebo Transport"
 readme = "README.md"
+include.workspace = true
 
 [dependencies]
 crossbeam-channel = "0.5.8"

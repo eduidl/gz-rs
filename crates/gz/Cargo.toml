@@ -9,6 +9,7 @@ license.workspace = true
 description = "Gazebo client library"
 readme = "README.md"
 keywords = ["gazebo", "robotics", "simulation"]
+include.workspace = true
 
 [dependencies]
 gz-msgs.workspace = true

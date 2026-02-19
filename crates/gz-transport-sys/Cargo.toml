@@ -10,7 +10,7 @@ description = "A low-level Rust wrapper for the Gazebo Transport"
 readme = "README.md"
 keywords = ["gazebo", "robotics", "simulation"]
 categories = ["external-ffi-bindings"]
-exclude = [".clang-format"]
+include.workspace = true
 
 [build-dependencies]
 cc = "1.0.83"

@@ -8,6 +8,7 @@ repository.workspace = true
 license.workspace = true
 description = "An internal crate for gz-msgs and gz-transport"
 readme = "README.md"
+include.workspace = true
 
 [dependencies]
 protobuf.workspace = true

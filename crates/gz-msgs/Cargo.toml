@@ -9,6 +9,7 @@ license.workspace = true
 description = "Rust implementation of Gazebo messages"
 readme = "README.md"
 keywords = ["gazebo", "robotics", "simulation", "messages"]
+include.workspace = true
 
 [dependencies]
 protobuf.workspace = true
