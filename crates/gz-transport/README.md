@@ -18,7 +18,7 @@ If a feature flag (`fortress`, `garden`, `harmonic`, `ionic`, or `jetty`) is spe
 
 ```toml
 [dependencies]
-gz-transport = { version = "0.9.0", features = ["harmonic"] }
+gz-transport = { version = "0.10.0", features = ["harmonic"] }
 ```
 
 If no feature flag is specified, the version is determined using pkg-config. When multiple versions are installed, the newest takes precedence. To use an older version, set the feature flag as above.
