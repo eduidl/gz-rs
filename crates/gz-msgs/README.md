@@ -6,10 +6,10 @@ Rust implementation of [Gazebo Messages](https://github.com/gazebosim/gz-msgs) u
 
 | Gazebo version | Gazebo Messages version                                                 |
 | -------------- | ----------------------------------------------------------------------- |
-| Fortress       | [8.7.0](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.0) |
+| Fortress       | [8.7.1](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.1) |
 | Garden (EOL)   | [9.5.1](https://github.com/gazebosim/gz-msgs/tree/gz-msgs9_9.5.1)       |
 | Harmonic       | [10.3.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.3.2)    |
-| Ionic          | [11.0.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.0.2)    |
+| Ionic          | [11.1.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.1.0)    |
 
 This crate is supporting multiple versions of Gazebo messages. The version is determined by the feature flag or using pkg-config.
 

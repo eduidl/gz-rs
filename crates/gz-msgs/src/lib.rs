@@ -10,7 +10,7 @@ pub use gz_msgs_common::protobuf;
 
 #[cfg(any(feature = "fortress", feature = "generate", docsrs))]
 #[cfg_attr(docsrs, doc(cfg(feature = "fortress")))]
-/// [Gazebo Message 8.7.0](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.0)
+/// [Gazebo Message 8.7.1](https://github.com/gazebosim/gz-msgs/tree/ignition-msgs8_8.7.1)
 pub mod ign_msgs8;
 #[cfg(feature = "fortress")]
 pub use ign_msgs8::*;
@@ -31,7 +31,7 @@ pub use gz_msgs10::*;
 
 #[cfg(any(feature = "ionic", feature = "generate", docsrs))]
 #[cfg_attr(docsrs, doc(cfg(feature = "ionic")))]
-/// [Gazebo Message 11.0.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.0.2)
+/// [Gazebo Message 11.1.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.1.0)
 pub mod gz_msgs11;
 #[cfg(feature = "ionic")]
 pub use gz_msgs11::*;
