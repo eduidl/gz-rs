@@ -12,12 +12,13 @@ Rust binding for Gazebo (not Gazebo Classic).
 
 This crate is supporting following versions of Gazebo.
 
-- Fortress
+- Fortress (LTS)
 - Garden (EOL)
-- Harmonic
+- Harmonic (LTS)
 - Ionic
+- Jetty (LTS)
 
-Gazebo version can be specified by feature flag (`fortress`, `garden`, `harmonic` or `ionic`). If not specified, the version is determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.
+Gazebo version can be specified by feature flag (`fortress`, `garden`, `harmonic`, `ionic` or `jetty`). If not specified, the version is determined by using pkg-config. When multiple versions are installed, the newer version takes precedence. If you want to use an older version, set the feature flag as above.
 
 ```toml
 [dependencies]

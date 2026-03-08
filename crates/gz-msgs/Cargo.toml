@@ -24,6 +24,7 @@ fortress = []
 garden = []
 harmonic = []
 ionic = []
+jetty = []
 
 # for develop
 generate = ["gz-msgs-build"]

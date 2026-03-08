@@ -35,3 +35,10 @@ pub use gz_msgs10::*;
 pub mod gz_msgs11;
 #[cfg(feature = "ionic")]
 pub use gz_msgs11::*;
+
+#[cfg(any(feature = "jetty", feature = "generate", docsrs))]
+#[cfg_attr(docsrs, doc(cfg(feature = "jetty")))]
+/// [Gazebo Message 12.x.x](https://github.com/gazebosim/gz-msgs/tree/gz-msgs12_12.0.1)
+pub mod gz_msgs12;
+#[cfg(feature = "jetty")]
+pub use gz_msgs12::*;

@@ -8,6 +8,7 @@ function main() {
         ["gz-msgs9"]="gz-msgs9_9.5.1"
         ["gz-msgs10"]="gz-msgs10_10.3.2"
         ["gz-msgs11"]="gz-msgs11_11.1.0"
+        ["gz-msgs12"]="gz-msgs12_12.0.1"
     )
 
     local repo="https://github.com/gazebosim/gz-msgs"

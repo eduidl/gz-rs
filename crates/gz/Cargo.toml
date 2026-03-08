@@ -23,6 +23,7 @@ fortress = ["gz-msgs/fortress", "gz-transport/fortress"]
 garden = ["gz-msgs/garden", "gz-transport/garden"]
 harmonic = ["gz-msgs/harmonic", "gz-transport/harmonic"]
 ionic = ["gz-msgs/ionic", "gz-transport/ionic"]
+jetty = ["gz-msgs/jetty", "gz-transport/jetty"]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]
