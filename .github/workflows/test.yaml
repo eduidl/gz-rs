@@ -106,8 +106,11 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
       - name: Install Tools
-        run: cargo install cargo-audit cargo-outdated
+        run: cargo binstall --no-confirm cargo-audit cargo-outdated
 
       - name: Outdated
         run: cargo outdated --exit-code 1
