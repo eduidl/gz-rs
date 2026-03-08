@@ -29,7 +29,7 @@ pub struct StringVec {
 pub type SubscriberCallback =
     unsafe extern "C" fn(*const c_char, usize, *const c_char, *mut c_void);
 
-extern "C" {
+unsafe extern "C" {
     // Node
     pub fn nodeCreate(partition: *const c_char) -> *mut Node;
     pub fn nodeDestroy(node: &mut *mut Node);

@@ -8,13 +8,13 @@ use std::{
     time::Duration,
 };
 
-use crossbeam_channel::{bounded, Receiver, TryRecvError};
+use crossbeam_channel::{Receiver, TryRecvError, bounded};
 use gz_msgs_common::GzMessage;
 use gz_transport_sys as ffi;
 
 use super::{
-    string::{FFIString, StringVec},
     Publisher,
+    string::{FFIString, StringVec},
 };
 
 type SubCallbackBox = Box<dyn FnMut(*const c_char, usize, *const c_char)>;
@@ -25,8 +25,10 @@ unsafe extern "C" fn callback_wrapper(
     topic_type: *const c_char,
     user_data: *mut c_void,
 ) {
-    let user_data = &mut *(user_data as *mut SubCallbackBox);
-    user_data(data, data_size, topic_type);
+    unsafe {
+        let user_data = &mut *(user_data as *mut SubCallbackBox);
+        user_data(data, data_size, topic_type);
+    }
 }
 
 /// A struct that allows a client to communicate with other peers
@@ -75,8 +77,8 @@ impl Node {
         Self::common(cstr.as_ptr())
     }
 
-    pub(crate) unsafe fn raw_mut(&mut self) -> &mut ffi::Node {
-        self.r#impl.as_mut()
+    pub(crate) const unsafe fn raw_mut(&mut self) -> &mut ffi::Node {
+        unsafe { self.r#impl.as_mut() }
     }
 
     /// Get the list of topics currently advertised in the network
@@ -246,11 +248,11 @@ impl Node {
                     let incoming_type = CStr::from_ptr(topic_type);
                     if incoming_type != expected_type.as_c_str() {
                         log::warn!(
-                                "Received message from topic '{}' with unexpected type '{}', expected '{}'",
-                                &topic,
-                                incoming_type.to_str().unwrap(),
-                                T::GZ_TYPE_NAME,
-                            );
+                            "Received message from topic '{}' with unexpected type '{}', expected '{}'",
+                            &topic,
+                            incoming_type.to_str().unwrap(),
+                            T::GZ_TYPE_NAME,
+                        );
                         return;
                     }
 

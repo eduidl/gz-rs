@@ -14,8 +14,8 @@ impl FFIString {
         }
     }
 
-    pub(crate) unsafe fn raw_mut(&mut self) -> &mut ffi::String {
-        self.r#impl.as_mut()
+    pub(crate) const unsafe fn raw_mut(&mut self) -> &mut ffi::String {
+        unsafe { self.r#impl.as_mut() }
     }
 
     pub fn len(&self) -> usize {
@@ -23,7 +23,7 @@ impl FFIString {
     }
 
     pub(crate) unsafe fn as_ptr(&self) -> *const c_char {
-        ffi::stringGet(self.r#impl.as_ref())
+        unsafe { ffi::stringGet(self.r#impl.as_ref()) }
     }
 }
 
