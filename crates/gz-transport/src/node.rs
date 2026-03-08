@@ -300,7 +300,7 @@ impl Node {
     pub fn unsubscribe(&mut self, topic: &str) -> bool {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
 
-        if self.callbacks.get(topic).is_none() {
+        if !self.callbacks.contains_key(topic) {
             log::warn!("No subscribers for topic '{}'", topic);
             return false;
         }
