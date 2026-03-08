@@ -14,7 +14,7 @@ include.workspace = true
 
 [build-dependencies]
 cc = "1.0.83"
-pkg-config.workspace = true
+gz-build.workspace = true
 
 [features]
 fortress = []

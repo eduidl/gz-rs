@@ -11,6 +11,9 @@ readme = "README.md"
 keywords = ["gazebo", "robotics", "simulation"]
 include.workspace = true
 
+[build-dependencies]
+gz-build.workspace = true
+
 [dependencies]
 gz-msgs.workspace = true
 gz-transport.workspace = true

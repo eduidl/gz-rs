@@ -16,6 +16,9 @@ gz-transport-sys.workspace = true
 gz-msgs-common.workspace = true
 log = "0.4.20"
 
+[build-dependencies]
+gz-build.workspace = true
+
 [dev-dependencies]
 uuid = { version = "1.5.0", features = ["v4"] }
 gz-msgs.workspace = true

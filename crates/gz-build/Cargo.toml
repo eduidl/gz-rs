@@ -1,0 +1,14 @@
+[package]
+name = "gz-build"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+description = "Build utilities for gz-rs crates"
+readme = "README.md"
+include.workspace = true
+
+[dependencies]
+pkg-config = "0.3.27"

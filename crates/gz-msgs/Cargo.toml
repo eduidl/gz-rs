@@ -16,8 +16,8 @@ protobuf.workspace = true
 gz-msgs-common.workspace = true
 
 [build-dependencies]
+gz-build.workspace = true
 gz-msgs-build = { workspace = true, optional = true }
-pkg-config.workspace = true
 
 [features]
 fortress = []
