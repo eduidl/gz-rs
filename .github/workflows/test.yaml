@@ -60,12 +60,16 @@ jobs:
             transport: gz-transport14
 
           - os: ubuntu-24.04
+            rust: stable
+            transport: gz-transport15
+
+          - os: ubuntu-24.04
             rust: beta
-            transport: gz-transport13
+            transport: gz-transport15
 
           - os: ubuntu-24.04
             rust: nightly
-            transport: gz-transport13
+            transport: gz-transport15
 
     runs-on: ${{ matrix.os }}
 

@@ -16,6 +16,7 @@ fortress = ["gz/fortress"]
 garden = ["gz/garden"]
 harmonic = ["gz/harmonic"]
 ionic = ["gz/ionic"]
+jetty = ["gz/jetty"]
 
 [package.metadata.release]
 release = false

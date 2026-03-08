@@ -15,6 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     build("gz-msgs9", false)?;
     build("gz-msgs10", false)?;
     build("gz-msgs11", false)?;
+    build("gz-msgs12", false)?;
 
     Ok(())
 }

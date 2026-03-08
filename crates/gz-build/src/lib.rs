@@ -2,6 +2,7 @@ use pkg_config::{Config, Library};
 
 /// (feature_name, pkg_config_name) pairs, newest-first.
 const TRANSPORT_VERSIONS: &[(&str, &str)] = &[
+    ("jetty", "gz-transport15"),
     ("ionic", "gz-transport14"),
     ("harmonic", "gz-transport13"),
     ("garden", "gz-transport12"),

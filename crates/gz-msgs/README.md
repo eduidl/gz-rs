@@ -10,10 +10,11 @@ Rust implementation of [Gazebo Messages](https://github.com/gazebosim/gz-msgs) u
 | Garden (EOL)   | [9.5.1](https://github.com/gazebosim/gz-msgs/tree/gz-msgs9_9.5.1)       |
 | Harmonic       | [10.3.2](https://github.com/gazebosim/gz-msgs/tree/gz-msgs10_10.3.2)    |
 | Ionic          | [11.1.0](https://github.com/gazebosim/gz-msgs/tree/gz-msgs11_11.1.0)    |
+| Jetty          | [12.0.1](https://github.com/gazebosim/gz-msgs/tree/gz-msgs12_12.0.1)    |
 
 This crate is supporting multiple versions of Gazebo messages. The version is determined by the feature flag or using pkg-config.
 
-If you specify any feature flag (`fortress`, `garden`, `harmonic` or `ionic`), the messages from the specified version will be used. Naturally, if more than one is specified, a compile error will occur.
+If you specify any feature flag (`fortress`, `garden`, `harmonic`, `ionic` or `jetty`), the messages from the specified version will be used. Naturally, if more than one is specified, a compile error will occur.
 
 ```toml
 [dependencies]
