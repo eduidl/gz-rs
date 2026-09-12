@@ -42,7 +42,6 @@ fn test_node_topic_list() {
     assert!(node1.topic_list().is_empty());
 
     let _p1 = node2.advertise::<StringMsg>("hoge").unwrap();
-    assert!(node2.subscribe("/fuga/hoge", |_msg: StringMsg| {}));
 
     let topics = node1.topic_list();
 

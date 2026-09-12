@@ -81,7 +81,10 @@ impl Node {
         unsafe { self.r#impl.as_mut() }
     }
 
-    /// Get the list of topics currently advertised in the network
+    /// Get the list of topics currently advertised in the network.
+    ///
+    /// Depending on the Gazebo Transport version, this may also include topics
+    /// subscribed to within the current process, even if they have no publisher.
     ///
     /// # Examples
     ///

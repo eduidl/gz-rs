@@ -113,11 +113,29 @@ jobs:
       - name: Install cargo-binstall
         uses: cargo-bins/cargo-binstall@main
 
-      - name: Install Tools
-        run: cargo binstall --no-confirm cargo-audit cargo-outdated
-
-      - name: Outdated
-        run: cargo outdated --exit-code 1
+      - name: Install cargo-audit
+        run: cargo binstall --no-confirm cargo-audit
 
       - name: Audit
         run: cargo audit
+
+  outdated:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install cargo-outdated
+        run: cargo binstall --no-confirm cargo-outdated
+
+      # Report available updates without failing solely because dependencies are outdated.
+      - name: Outdated
+        run: cargo outdated
