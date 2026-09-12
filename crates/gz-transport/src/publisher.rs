@@ -74,7 +74,7 @@ impl<T: GzMessage> Publisher<T> {
         unsafe {
             ffi::publisherPublish(
                 self.r#impl.as_mut(),
-                self.buf.as_ptr() as *const i8,
+                self.buf.as_ptr().cast::<std::ffi::c_char>(),
                 self.buf.len(),
             )
         }
