@@ -25,24 +25,55 @@ If no feature flag is specified, the version is determined using pkg-config. Whe
 
 ## Receiving messages
 
-`Node::subscribe_channel` returns a bounded channel of owned messages. Process it
-on a thread you control; no subscription worker is created. Native callbacks
-only decode messages and enqueue them without waiting for your processing.
+Prefer `Node::subscribe_channel` to process messages on a thread you control.
+It is suitable for sequential state updates and expensive processing. No worker
+thread is created by the library, and your receiving loop needs no `Send` or
+`Sync` callback. For example:
 
-`Node::subscribe` accepts `FnMut(T) + Send + 'static` and runs it asynchronously on
-one dedicated worker per subscription, using a queue of 1024 messages. The
-callback exclusively owns its state and does not need `Sync` or a wrapping Mutex.
-Even local publishing returns without waiting for the user callback. Publishing
-from a callback back to its topic queues a later invocation; it must not wait for
-that invocation to complete.
+```rust,no_run
+use gz_msgs::stringmsg::StringMsg;
+use gz_transport::Node;
 
-Both APIs drop the incoming message with a warning when their queue is full.
-This changes `subscribe_channel` overflow behavior: existing queued messages are
-retained instead of evicting the oldest message.
+let mut node = Node::new().unwrap();
+let rx = node.subscribe_channel::<StringMsg>("topic", 10).unwrap();
+let mut count = 0;
+while let Ok(msg) = rx.recv_blocking() {
+    count += 1;
+    println!("Message {count}: {}", msg.data);
+}
+```
 
-Unsubscription and Node destruction signal workers to stop without joining them.
-An already dispatched callback may finish afterward, then pending worker messages
-are discarded. A callback panic ends that worker. Already acquired native
-callbacks retain their context until they finish, so they may still enqueue
-messages after unsubscription or Node destruction. Channel receivers observe
-disconnection once those callbacks finish and the queue is drained.
+Native callbacks decode and enqueue owned messages without waiting for the
+receiver. When full, the channel evicts the oldest queued message with a warning
+and enqueues the new one, retaining the latest N messages. Capacity must be at
+least one. This is a Rust-side queue, not a
+transport delivery guarantee; messages may also be lost upstream.
+
+The returned receiver is an `async_channel::Receiver<T>`. Use `recv_blocking()`
+in synchronous code or `recv().await` in asynchronous code.
+
+`Node::subscribe` is the direct callback API. It accepts
+`Fn(T) + Send + Sync + 'static` and adds no Rust worker thread, message queue, or
+callback lock. Keep callbacks short. Gazebo may call them concurrently or
+re-enter them on the same thread. Local raw publication can invoke callbacks
+before `publish` returns. Do not hold a lock needed by a nested callback while
+publishing, or wait for another callback to finish. A successful publish does
+not guarantee remote processing has completed.
+
+Unsubscription and Node destruction do not wait for native handlers already
+acquired by Gazebo. Those handlers retain their context and may still invoke
+callbacks or enqueue messages afterward. Channel receivers observe disconnection
+once all native owners release their senders and the queue has been drained.
+Dropping a receiver does not itself unsubscribe the topic.
+
+Direct callbacks and their captured-value destructors must not panic: a panic
+reaching the non-unwinding C ABI boundary aborts the process. Panics in a
+channel's receiving loop are handled by the application, outside Gazebo.
+
+### Migrating callback code
+
+Callbacks requiring `FnMut` or capturing non-`Sync` values such as `Cell` should
+move their processing into a `subscribe_channel` receiving loop. For concurrent
+callbacks, use atomics or synchronized state as appropriate; such synchronization
+must account for possible re-entry. Direct callbacks no longer run on a dedicated
+worker or use the former fixed-capacity 1024-message queue.

@@ -48,22 +48,10 @@ let topic = StringMsg {
 assert!(publisher.publish(&topic));
 ```
 
-### Example: Subscribe (callback)
+### Example: Subscribe (channel, recommended)
 
-```rust,no_run
-use gz::{msgs::stringmsg::StringMsg, transport::Node};
-
-let mut node = Node::new().unwrap();
-node.subscribe("topic_name", |msg: StringMsg| {
-    println!("Subscribed: {}", msg.data);
-});
-
-gz::transport::wait_for_shutdown();
-```
-
-### Example: Subscribe (channel)
-
-`subscribe_channel` also uses callbacks internally. However, `subscribe_channel` may be easier to use when ownership is involved.
+Use `subscribe_channel` to process messages sequentially on your own thread.
+The bounded queue retains the latest N messages, evicting the oldest when full.
 
 ```rust,no_run
 use gz::{msgs::stringmsg::StringMsg, transport::Node};
@@ -71,7 +59,26 @@ use gz::{msgs::stringmsg::StringMsg, transport::Node};
 let mut node = Node::new().unwrap();
 let rx = node.subscribe_channel::<StringMsg>("topic_name", 10).unwrap();
 
-for msg in rx {
+while let Ok(msg) = rx.recv_blocking() {
     println!("Received: {}", msg.data);
 }
+```
+
+### Example: Subscribe (direct callback)
+
+`subscribe` requires `Fn + Send + Sync` and runs directly on Gazebo's calling
+thread, without a Rust worker or queue. Callbacks must support concurrent calls
+and re-entry, and should return quickly. Prefer channels when updating local
+mutable state or doing expensive work. See the transport crate's documentation
+for panic and unsubscription behavior.
+
+```rust,no_run
+use gz::{msgs::stringmsg::StringMsg, transport::Node};
+
+let mut node = Node::new().unwrap();
+assert!(node.subscribe("topic_name", |msg: StringMsg| {
+    println!("Subscribed: {}", msg.data);
+}));
+
+gz::transport::wait_for_shutdown();
 ```
