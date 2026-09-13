@@ -30,6 +30,14 @@ bool nodeSubscribe(Node* node,
                    const char* topic,
                    void (*_callback)(const char*, size_t, const char*, void*),
                    void* userData);
+// Takes ownership of userData even when registration fails. destroyUserData is
+// called once after the last native callback owner releases it, possibly after
+// unsubscription or Node destruction. Neither function pointer may unwind.
+bool nodeSubscribeOwned(Node* node,
+                        const char* topic,
+                        void (*callback)(const char*, size_t, const char*, void*),
+                        void* userData,
+                        void (*destroyUserData)(void*));
 bool nodeUnsubscribe(Node* node, const char* topic);
 
 // Service

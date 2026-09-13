@@ -22,11 +22,9 @@ const CALLBACK_QUEUE_CAPACITY: usize = 1024;
 type SubCallbackBox = Box<dyn Fn(*const c_char, usize, *const c_char) + Send + Sync>;
 
 struct Subscription {
-    // Fields drop in declaration order: disconnect stop before the message
-    // sender, so a worker prioritizes cancellation over queued messages.
+    // Native callbacks own their context independently. Rust only keeps the
+    // worker's stop sender so cancellation does not wait for native handlers.
     _stop: Option<Sender<()>>,
-    // The outer Box keeps the FFI user_data address stable as the map grows.
-    _callback: Box<SubCallbackBox>,
 }
 
 unsafe extern "C" fn callback_wrapper(
@@ -35,25 +33,30 @@ unsafe extern "C" fn callback_wrapper(
     topic_type: *const c_char,
     user_data: *mut c_void,
 ) {
-    // SAFETY: user_data points to a boxed callback owned by the subscribing
-    // Node, retained until native unsubscription or destruction. Concurrent
-    // native callers only share a Fn + Send + Sync that decodes and enqueues
-    // owned messages; they never access the user's FnMut callback.
+    // SAFETY: nodeSubscribeOwned keeps this boxed callback alive through every
+    // acquired native handler, including calls after unsubscription. Concurrent
+    // callers share a Fn + Send + Sync that only decodes and enqueues messages.
     let callback = unsafe { &*user_data.cast::<SubCallbackBox>() };
     callback(data, data_size, topic_type);
+}
+
+unsafe extern "C" fn destroy_callback(user_data: *mut c_void) {
+    // SAFETY: this pointer comes from Box::into_raw in register_subscription.
+    // The native shared owner invokes this once, after all handlers release it.
+    unsafe { drop(Box::from_raw(user_data.cast::<SubCallbackBox>())) };
 }
 
 /// A struct that allows a client to communicate with other peers
 pub struct Node {
     r#impl: NonNull<ffi::Node>,
-    callbacks: HashMap<String, Vec<Subscription>>,
+    subscriptions: HashMap<String, Vec<Subscription>>,
 }
 
 impl Node {
     fn common(ptr: *const c_char) -> Option<Self> {
         Some(Self {
             r#impl: unsafe { NonNull::new(ffi::nodeCreate(ptr))? },
-            callbacks: HashMap::new(),
+            subscriptions: HashMap::new(),
         })
     }
 
@@ -182,8 +185,9 @@ impl Node {
     /// incoming message is dropped with a warning; queued messages are retained.
     /// A zero bound only delivers when a receiver is already waiting.
     ///
-    /// After successful unsubscription or Node destruction, queued messages can
-    /// still be received, then the channel disconnects.
+    /// Native callbacks already acquired by Gazebo may still enqueue messages
+    /// after successful unsubscription or Node destruction. The channel
+    /// disconnects once those callbacks finish and queued messages are drained.
     ///
     /// # Examples
     ///
@@ -346,23 +350,25 @@ impl Node {
             ) as SubCallbackBox
         });
 
+        // Transfer the stable outer allocation to the native callback owner.
+        // The FFI consumes it on both success and failure, so Rust must not
+        // reconstruct or retain a Box after the call.
+        let user_data = Box::into_raw(callback).cast();
         let ret = unsafe {
-            ffi::nodeSubscribe(
+            ffi::nodeSubscribeOwned(
                 self.r#impl.as_mut(),
                 ctopic_name.as_ptr(),
                 callback_wrapper,
-                (&*callback as *const SubCallbackBox).cast_mut().cast(),
+                user_data,
+                destroy_callback,
             )
         };
 
         if ret {
-            self.callbacks
+            self.subscriptions
                 .entry(topic.into())
                 .or_default()
-                .push(Subscription {
-                    _stop: stop,
-                    _callback: callback,
-                });
+                .push(Subscription { _stop: stop });
         }
 
         ret
@@ -372,8 +378,10 @@ impl Node {
     ///
     /// On success, callback workers are asked to stop without waiting for an
     /// already dispatched callback to finish. Pending worker messages are
-    /// discarded. Receivers from [`Self::subscribe_channel`] can drain their
-    /// queued messages before observing disconnection.
+    /// discarded. Already acquired native callbacks retain their context and
+    /// may still enqueue messages for [`Self::subscribe_channel`] receivers.
+    /// Those receivers disconnect after the callbacks finish and the queue is
+    /// drained.
     ///
     /// # Examples
     ///
@@ -390,7 +398,7 @@ impl Node {
     pub fn unsubscribe(&mut self, topic: &str) -> bool {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
 
-        if !self.callbacks.contains_key(topic) {
+        if !self.subscriptions.contains_key(topic) {
             log::warn!("No subscribers for topic '{}'", topic);
             return false;
         }
@@ -398,7 +406,7 @@ impl Node {
         let ret = unsafe { ffi::nodeUnsubscribe(self.r#impl.as_mut(), ctopic_name.as_ptr()) };
 
         if ret {
-            self.callbacks.remove(topic);
+            self.subscriptions.remove(topic);
         }
 
         ret
@@ -500,6 +508,7 @@ impl Debug for Node {
 
 impl Drop for Node {
     fn drop(&mut self) {
+        self.subscriptions.clear();
         unsafe { ffi::nodeDestroy(&mut self.r#impl.as_ptr()) };
     }
 }

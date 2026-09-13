@@ -102,6 +102,28 @@ bool nodeSubscribe(Node* node,
   return node->impl->SubscribeRaw(topic, callback);
 }
 
+bool nodeSubscribeOwned(Node* node,
+                        const char* topic,
+                        void (*callback)(const char*, size_t, const char*, void*),
+                        void* userData,
+                        void (*destroyUserData)(void*)) {
+  try {
+    // Each retained Gazebo handler owns this context through its callback.
+    // Removing a subscription cannot free it while a captured handler is in use.
+    // shared_ptr also invokes the deleter if control-block allocation fails.
+    const std::shared_ptr<void> context(userData, destroyUserData);
+    const auto ownedCallback = [callback, context](
+        const char* msg, const size_t size,
+        const gz::transport::MessageInfo& info) {
+      callback(msg, size, info.Type().c_str(), context.get());
+    };
+    return node->impl->SubscribeRaw(topic, ownedCallback);
+  } catch (...) {
+    // Release local ownership through RAII and keep C++ exceptions out of Rust.
+    return false;
+  }
+}
+
 bool nodeUnsubscribe(Node* node, const char* topic) {
   return node->impl->Unsubscribe(topic);
 }

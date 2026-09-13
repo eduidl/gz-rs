@@ -42,5 +42,7 @@ retained instead of evicting the oldest message.
 
 Unsubscription and Node destruction signal workers to stop without joining them.
 An already dispatched callback may finish afterward, then pending worker messages
-are discarded. A callback panic ends that worker. Channel receivers can still
-drain queued messages after unsubscription, then observe disconnection.
+are discarded. A callback panic ends that worker. Already acquired native
+callbacks retain their context until they finish, so they may still enqueue
+messages after unsubscription or Node destruction. Channel receivers observe
+disconnection once those callbacks finish and the queue is drained.
