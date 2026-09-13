@@ -4,11 +4,11 @@ use std::{
     fmt::{self, Debug},
     os::raw::{c_char, c_uint, c_void},
     ptr::NonNull,
-    slice,
+    slice, thread,
     time::Duration,
 };
 
-use crossbeam_channel::{Receiver, TryRecvError, bounded};
+use crossbeam_channel::{Receiver, Sender, TrySendError, bounded, select_biased};
 use gz_msgs_common::GzMessage;
 use gz_transport_sys as ffi;
 
@@ -17,7 +17,17 @@ use super::{
     string::{FFIString, StringVec},
 };
 
-type SubCallbackBox = Box<dyn FnMut(*const c_char, usize, *const c_char)>;
+const CALLBACK_QUEUE_CAPACITY: usize = 1024;
+
+type SubCallbackBox = Box<dyn Fn(*const c_char, usize, *const c_char) + Send + Sync>;
+
+struct Subscription {
+    // Fields drop in declaration order: disconnect stop before the message
+    // sender, so a worker prioritizes cancellation over queued messages.
+    _stop: Option<Sender<()>>,
+    // The outer Box keeps the FFI user_data address stable as the map grows.
+    _callback: Box<SubCallbackBox>,
+}
 
 unsafe extern "C" fn callback_wrapper(
     data: *const c_char,
@@ -25,17 +35,18 @@ unsafe extern "C" fn callback_wrapper(
     topic_type: *const c_char,
     user_data: *mut c_void,
 ) {
-    unsafe {
-        let user_data = &mut *(user_data as *mut SubCallbackBox);
-        user_data(data, data_size, topic_type);
-    }
+    // SAFETY: user_data points to a boxed callback owned by the subscribing
+    // Node, retained until native unsubscription or destruction. Concurrent
+    // native callers only share a Fn + Send + Sync that decodes and enqueues
+    // owned messages; they never access the user's FnMut callback.
+    let callback = unsafe { &*user_data.cast::<SubCallbackBox>() };
+    callback(data, data_size, topic_type);
 }
 
 /// A struct that allows a client to communicate with other peers
 pub struct Node {
     r#impl: NonNull<ffi::Node>,
-    #[allow(clippy::vec_box)]
-    callbacks: HashMap<String, Vec<Box<SubCallbackBox>>>,
+    callbacks: HashMap<String, Vec<Subscription>>,
 }
 
 impl Node {
@@ -164,7 +175,15 @@ impl Node {
             .unwrap()
     }
 
-    /// Subscribe to a topic registering a callback
+    /// Subscribe to a topic and receive owned messages through a bounded channel.
+    ///
+    /// No worker thread is created. Native callbacks decode and try to enqueue
+    /// messages without waiting for the receiver. If the channel is full, the
+    /// incoming message is dropped with a warning; queued messages are retained.
+    /// A zero bound only delivers when a receiver is already waiting.
+    ///
+    /// After successful unsubscription or Node destruction, queued messages can
+    /// still be received, then the channel disconnects.
     ///
     /// # Examples
     ///
@@ -191,32 +210,42 @@ impl Node {
         T: GzMessage,
     {
         let (tx, rx) = bounded(bound);
-
-        let ret = self.subscribe(topic, {
-            let topic = topic.to_string();
-            let rx = rx.clone();
-            move |msg: T| {
-                if tx.is_full() {
-                    // dequeue one GzMessage
-                    match rx.try_recv() {
-                        Ok(_) => {
-                            log::warn!("last message of topic {} was dropped", &topic);
-                        }
-                        // maybe consumed from another thread
-                        Err(TryRecvError::Empty) => {}
-                        Err(TryRecvError::Disconnected) => {
-                            panic!("Channel {} is disconnected", &topic);
-                        }
-                    }
-                }
-                let _ = tx.try_send(msg);
-            }
-        });
-
-        ret.then_some(rx)
+        self.register_subscription(topic, tx, None).then_some(rx)
     }
 
     /// Subscribe to a topic registering a callback
+    ///
+    /// Each subscription owns a worker thread and a queue of 1024 messages.
+    /// The worker exclusively owns the [`Send`] callback and calls it in queue
+    /// order, so it need not be [`Sync`]. Native callbacks only decode and enqueue
+    /// messages. When the queue is full, the incoming message is dropped with a
+    /// warning. Use [`Self::subscribe_channel`] to choose the queue capacity and
+    /// run message processing on your own thread instead.
+    ///
+    /// Execution is asynchronous, including for local publishers: publishing
+    /// does not wait for the user callback. Publishing back to the same topic
+    /// enqueues another message instead of re-entering the callback. Do not wait
+    /// inside the callback for a later invocation of the same callback.
+    ///
+    /// Successful unsubscription or Node destruction requests worker shutdown
+    /// without waiting for user code. An already dispatched callback may still
+    /// run; the worker discards pending messages and exits afterward. A callback
+    /// panic terminates its worker, without unwinding through Gazebo.
+    /// Returns false if native registration or worker creation fails.
+    ///
+    /// Capturing non-`Send` state is rejected:
+    ///
+    /// ```compile_fail,E0277
+    /// use std::{cell::Cell, rc::Rc};
+    /// use gz_msgs::stringmsg::StringMsg;
+    /// use gz_transport::Node;
+    ///
+    /// let mut node = Node::new().unwrap();
+    /// let count = Rc::new(Cell::new(0));
+    /// assert!(node.subscribe("topic_name", move |_: StringMsg| {
+    ///     count.set(count.get() + 1);
+    /// }));
+    /// ```
     ///
     /// # Examples
     ///
@@ -238,11 +267,51 @@ impl Node {
     pub fn subscribe<T, F>(&mut self, topic: &str, mut callback: F) -> bool
     where
         T: GzMessage,
-        F: FnMut(T) + 'static,
+        F: FnMut(T) + Send + 'static,
+    {
+        let (tx, rx) = bounded(CALLBACK_QUEUE_CAPACITY);
+        let (stop_tx, stop_rx) = bounded::<()>(0);
+        let worker = thread::Builder::new()
+            .name("gz-subscription".into())
+            .spawn(move || {
+                loop {
+                    select_biased! {
+                        recv(stop_rx) -> _ => break,
+                        recv(rx) -> msg => match msg {
+                            Ok(msg) => callback(msg),
+                            Err(_) => break,
+                        },
+                    }
+                }
+            });
+        match worker {
+            Ok(worker) => {
+                // Detach: shutdown must not wait for arbitrary user code.
+                drop(worker);
+                self.register_subscription(topic, tx, Some(stop_tx))
+            }
+            Err(e) => {
+                log::warn!(
+                    "Failed to start subscription worker for topic '{}': {}",
+                    topic,
+                    e
+                );
+                false
+            }
+        }
+    }
+
+    fn register_subscription<T>(
+        &mut self,
+        topic: &str,
+        tx: Sender<T>,
+        stop: Option<Sender<()>>,
+    ) -> bool
+    where
+        T: GzMessage,
     {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
-
-        let mut callback = Box::new({
+        let callback = Box::new({
             let topic = topic.to_string();
             let expected_type = CString::new(T::GZ_TYPE_NAME).expect("Invalid type name");
 
@@ -252,21 +321,29 @@ impl Node {
                     if incoming_type != expected_type.as_c_str() {
                         log::warn!(
                             "Received message from topic '{}' with unexpected type '{}', expected '{}'",
-                            &topic,
-                            incoming_type.to_str().unwrap(),
+                            topic,
+                            incoming_type.to_string_lossy(),
                             T::GZ_TYPE_NAME,
                         );
                         return;
                     }
 
-                    match T::parse_from_bytes(slice::from_raw_parts(data as *const u8, data_size)) {
-                        Ok(msg) => callback(msg),
+                    match T::parse_from_bytes(slice::from_raw_parts(data.cast::<u8>(), data_size)) {
+                        Ok(msg) => match tx.try_send(msg) {
+                            Ok(()) | Err(TrySendError::Disconnected(_)) => {}
+                            Err(TrySendError::Full(_)) => {
+                                log::warn!(
+                                    "Incoming message from topic '{}' was dropped: subscription queue is full",
+                                    topic
+                                );
+                            }
+                        },
                         Err(e) => {
-                            log::warn!("Failed to decode message from topic '{}': {}", &topic, e);
+                            log::warn!("Failed to decode message from topic '{}': {}", topic, e);
                         }
-                    };
+                    }
                 },
-            ) as Box<dyn FnMut(_, _, _)>
+            ) as SubCallbackBox
         });
 
         let ret = unsafe {
@@ -274,7 +351,7 @@ impl Node {
                 self.r#impl.as_mut(),
                 ctopic_name.as_ptr(),
                 callback_wrapper,
-                callback.as_mut() as *mut _ as *mut c_void,
+                (&*callback as *const SubCallbackBox).cast_mut().cast(),
             )
         };
 
@@ -282,13 +359,21 @@ impl Node {
             self.callbacks
                 .entry(topic.into())
                 .or_default()
-                .push(callback);
+                .push(Subscription {
+                    _stop: stop,
+                    _callback: callback,
+                });
         }
 
         ret
     }
 
     /// Unsubscribe from a topic. If the topic is not currently subscribed, this function does nothing.
+    ///
+    /// On success, callback workers are asked to stop without waiting for an
+    /// already dispatched callback to finish. Pending worker messages are
+    /// discarded. Receivers from [`Self::subscribe_channel`] can drain their
+    /// queued messages before observing disconnection.
     ///
     /// # Examples
     ///
@@ -399,7 +484,7 @@ impl Node {
             )) {
                 Ok(res) => Some((res, result)),
                 Err(e) => {
-                    log::warn!("Failed to decode response from service '{}': {}", &topic, e);
+                    log::warn!("Failed to decode response from service '{}': {}", topic, e);
                     None
                 }
             }
