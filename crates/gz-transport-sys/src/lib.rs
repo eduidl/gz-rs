@@ -29,6 +29,9 @@ pub struct StringVec {
 pub type SubscriberCallback =
     unsafe extern "C" fn(*const c_char, usize, *const c_char, *mut c_void);
 
+/// Releases the user data owned by a native subscription.
+pub type SubscriberDataDestructor = unsafe extern "C" fn(*mut c_void);
+
 unsafe extern "C" {
     // Node
     pub fn nodeCreate(partition: *const c_char) -> *mut Node;
@@ -53,11 +56,37 @@ unsafe extern "C" {
 
     // Topic Sub
     pub fn nodeSubscribedTopics(node: &Node) -> *mut StringVec;
+    /// Registers a callback with borrowed user data.
+    ///
+    /// # Safety
+    /// The callback and user data must support concurrent native calls. The
+    /// caller must retain the data until all acquired native handlers finish;
+    /// unsubscription or Node destruction alone does not establish this.
+    /// Prefer [`nodeSubscribeOwned`] for native-managed ownership.
     pub fn nodeSubscribe(
         node: &mut Node,
         topic: *const c_char,
         callback: SubscriberCallback,
         user_data: *mut c_void,
+    ) -> bool;
+    /// Registers a callback and takes ownership of its user data, even on failure.
+    ///
+    /// `destroy_user_data` is called exactly once after the last native callback
+    /// owner releases the data. This may happen before this function returns,
+    /// or on another thread after unsubscription or Node destruction.
+    ///
+    /// # Safety
+    /// `node` must be live, and `topic` must point to a valid NUL-terminated
+    /// string for this call. `user_data` must be valid for both callbacks and
+    /// must not be freed by the caller after ownership is transferred. The
+    /// callback must support concurrent calls. Neither callback may unwind;
+    /// the destructor must be valid on any thread and must release the data.
+    pub fn nodeSubscribeOwned(
+        node: &mut Node,
+        topic: *const c_char,
+        callback: SubscriberCallback,
+        user_data: *mut c_void,
+        destroy_user_data: SubscriberDataDestructor,
     ) -> bool;
     pub fn nodeUnsubscribe(node: &mut Node, topic: *const c_char) -> bool;
 
