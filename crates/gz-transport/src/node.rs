@@ -433,6 +433,8 @@ impl Node {
 
     /// Request a new service using a blocking call.
     ///
+    /// The timeout is truncated to whole milliseconds.
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -451,6 +453,7 @@ impl Node {
     /// - If the topic name is not a valid ASCII string
     /// - If the request type name is not a valid ASCII string
     /// - If the response type name is not a valid ASCII string
+    /// - If the timeout in whole milliseconds exceeds [`c_uint::MAX`]; no request is sent
     pub fn request<Req, Res>(
         &mut self,
         topic: &str,
@@ -461,6 +464,10 @@ impl Node {
         Req: GzMessage,
         Res: GzMessage,
     {
+        let timeout_ms: c_uint = timeout
+            .as_millis()
+            .try_into()
+            .expect("Timeout in milliseconds exceeds c_uint::MAX");
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
         let req_serialized = request
             .write_to_bytes()
@@ -478,7 +485,7 @@ impl Node {
                 req_serialized.len(),
                 creq_type.as_ptr(),
                 cres_type.as_ptr(),
-                timeout.as_millis() as c_uint,
+                timeout_ms,
                 res_buf.raw_mut(),
                 &mut result,
             ) {

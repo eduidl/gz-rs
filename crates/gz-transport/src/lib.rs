@@ -6,7 +6,6 @@
     clippy::nursery
 )]
 
-
 mod node;
 mod publisher;
 mod string;
