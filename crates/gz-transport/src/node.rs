@@ -462,10 +462,9 @@ impl Node {
         Res: GzMessage,
     {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
-        let mut req_serialized = request
+        let req_serialized = request
             .write_to_bytes()
             .expect("Failed to serialize request");
-        req_serialized.push(0);
         let creq_type = CString::new(Req::GZ_TYPE_NAME).expect("Invalid type name");
         let cres_type = CString::new(Res::GZ_TYPE_NAME).expect("Invalid type name");
 

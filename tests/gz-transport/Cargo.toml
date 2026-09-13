@@ -1,0 +1,30 @@
+[package]
+name = "gz-transport-tests"
+version = "0.0.0"
+publish = false
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dev-dependencies]
+gz-transport.workspace = true
+gz-transport-sys.workspace = true
+gz-msgs.workspace = true
+gz-msgs-common.workspace = true
+uuid = { version = "1.5.0", features = ["v4"] }
+
+[build-dependencies]
+cc = "1.2.56"
+gz-build.workspace = true
+
+[features]
+fortress = ["gz-transport/fortress", "gz-msgs/fortress"]
+garden = ["gz-transport/garden", "gz-msgs/garden"]
+harmonic = ["gz-transport/harmonic", "gz-msgs/harmonic"]
+ionic = ["gz-transport/ionic", "gz-msgs/ionic"]
+jetty = ["gz-transport/jetty", "gz-msgs/jetty"]
+
+[package.metadata.release]
+release = false

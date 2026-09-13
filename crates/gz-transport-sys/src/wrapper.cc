@@ -149,7 +149,9 @@ bool nodeRequest(Node* node,
   if (!req) {
     return false;
   }
-  req->ParseFromString(std::string(_req, req_len));
+  if (!req->ParseFromString(std::string(_req, req_len))) {
+    return false;
+  }
 
   std::unique_ptr<google::protobuf::Message> res =
       gz::msgs::Factory::New(restype);
