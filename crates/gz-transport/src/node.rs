@@ -1,14 +1,14 @@
 use std::{
-    collections::HashMap,
+    collections::HashSet,
     ffi::{CStr, CString},
     fmt::{self, Debug},
     os::raw::{c_char, c_uint, c_void},
     ptr::NonNull,
-    slice, thread,
+    slice,
     time::Duration,
 };
 
-use crossbeam_channel::{Receiver, Sender, TrySendError, bounded, select_biased};
+use async_channel::{Receiver, bounded};
 use gz_msgs_common::GzMessage;
 use gz_transport_sys as ffi;
 
@@ -17,15 +17,7 @@ use super::{
     string::{FFIString, StringVec},
 };
 
-const CALLBACK_QUEUE_CAPACITY: usize = 1024;
-
 type SubCallbackBox = Box<dyn Fn(*const c_char, usize, *const c_char) + Send + Sync>;
-
-struct Subscription {
-    // Native callbacks own their context independently. Rust only keeps the
-    // worker's stop sender so cancellation does not wait for native handlers.
-    _stop: Option<Sender<()>>,
-}
 
 unsafe extern "C" fn callback_wrapper(
     data: *const c_char,
@@ -33,30 +25,29 @@ unsafe extern "C" fn callback_wrapper(
     topic_type: *const c_char,
     user_data: *mut c_void,
 ) {
-    // SAFETY: nodeSubscribeOwned keeps this boxed callback alive through every
-    // acquired native handler, including calls after unsubscription. Concurrent
-    // callers share a Fn + Send + Sync that only decodes and enqueues messages.
+    // SAFETY: nodeSubscribeOwned retains this boxed callback through every
+    // acquired native handler, including concurrent calls after unsubscription.
     let callback = unsafe { &*user_data.cast::<SubCallbackBox>() };
     callback(data, data_size, topic_type);
 }
 
 unsafe extern "C" fn destroy_callback(user_data: *mut c_void) {
-    // SAFETY: this pointer comes from Box::into_raw in register_subscription.
-    // The native shared owner invokes this once, after all handlers release it.
+    // SAFETY: native ownership invokes this exactly once after the last handler
+    // releases the pointer transferred by Box::into_raw.
     unsafe { drop(Box::from_raw(user_data.cast::<SubCallbackBox>())) };
 }
 
 /// A struct that allows a client to communicate with other peers
 pub struct Node {
     r#impl: NonNull<ffi::Node>,
-    subscriptions: HashMap<String, Vec<Subscription>>,
+    subscriptions: HashSet<String>,
 }
 
 impl Node {
     fn common(ptr: *const c_char) -> Option<Self> {
         Some(Self {
             r#impl: unsafe { NonNull::new(ffi::nodeCreate(ptr))? },
-            subscriptions: HashMap::new(),
+            subscriptions: HashSet::new(),
         })
     }
 
@@ -180,10 +171,13 @@ impl Node {
 
     /// Subscribe to a topic and receive owned messages through a bounded channel.
     ///
-    /// No worker thread is created. Native callbacks decode and try to enqueue
+    /// Recommended for sequential state updates, expensive processing, and
+    /// choosing your own processing thread. No worker thread is created.
+    /// Native callbacks decode and try to enqueue
     /// messages without waiting for the receiver. If the channel is full, the
-    /// incoming message is dropped with a warning; queued messages are retained.
-    /// A zero bound only delivers when a receiver is already waiting.
+    /// oldest queued message is dropped with a warning to make room for the new one.
+    /// The bound must be at least one.
+    /// Panics in your receiving loop are outside Gazebo and handled by your code.
     ///
     /// Native callbacks already acquired by Gazebo may still enqueue messages
     /// after successful unsubscription or Node destruction. The channel
@@ -200,7 +194,7 @@ impl Node {
     ///     .subscribe_channel::<StringMsg>("topic_name", 10)
     ///     .unwrap();
     ///
-    /// for msg in rx {
+    /// while let Ok(msg) = rx.recv_blocking() {
     ///     println!("Received: {:?}", msg.data);
     /// }
     /// ```
@@ -209,47 +203,32 @@ impl Node {
     ///
     /// - If the topic name is not a valid ASCII string
     /// - If the topic type name is not a valid ASCII string
+    /// - If `bound` is zero
     pub fn subscribe_channel<T>(&mut self, topic: &str, bound: usize) -> Option<Receiver<T>>
     where
         T: GzMessage,
     {
         let (tx, rx) = bounded(bound);
-        self.register_subscription(topic, tx, None).then_some(rx)
+        let topic_name = topic.to_owned();
+        let registered = self.subscribe(topic, move |msg: T| {
+            if let Ok(Some(_)) = tx.force_send(msg) {
+                log::warn!(
+                    "Oldest message from topic '{}' was dropped: subscription queue is full",
+                    topic_name
+                );
+            }
+        });
+        registered.then_some(rx)
     }
 
-    /// Subscribe to a topic registering a callback
+    /// Subscribe with a callback executed directly by Gazebo. Returns false on
+    /// registration failure.
     ///
-    /// Each subscription owns a worker thread and a queue of 1024 messages.
-    /// The worker exclusively owns the [`Send`] callback and calls it in queue
-    /// order, so it need not be [`Sync`]. Native callbacks only decode and enqueue
-    /// messages. When the queue is full, the incoming message is dropped with a
-    /// warning. Use [`Self::subscribe_channel`] to choose the queue capacity and
-    /// run message processing on your own thread instead.
-    ///
-    /// Execution is asynchronous, including for local publishers: publishing
-    /// does not wait for the user callback. Publishing back to the same topic
-    /// enqueues another message instead of re-entering the callback. Do not wait
-    /// inside the callback for a later invocation of the same callback.
-    ///
-    /// Successful unsubscription or Node destruction requests worker shutdown
-    /// without waiting for user code. An already dispatched callback may still
-    /// run; the worker discards pending messages and exits afterward. A callback
-    /// panic terminates its worker, without unwinding through Gazebo.
-    /// Returns false if native registration or worker creation fails.
-    ///
-    /// Capturing non-`Send` state is rejected:
-    ///
-    /// ```compile_fail,E0277
-    /// use std::{cell::Cell, rc::Rc};
-    /// use gz_msgs::stringmsg::StringMsg;
-    /// use gz_transport::Node;
-    ///
-    /// let mut node = Node::new().unwrap();
-    /// let count = Rc::new(Cell::new(0));
-    /// assert!(node.subscribe("topic_name", move |_: StringMsg| {
-    ///     count.set(count.get() + 1);
-    /// }));
-    /// ```
+    /// Callbacks may run concurrently or re-enter during local publication.
+    /// Keep them short; prefer [`Self::subscribe_channel`] for sequential or
+    /// expensive processing. Acquired callbacks may run after unsubscription.
+    /// Callbacks and their captures' destructors must not panic: unwinding across
+    /// the C ABI boundary aborts the process.
     ///
     /// # Examples
     ///
@@ -268,54 +247,13 @@ impl Node {
     /// - If the topic name is not a valid ASCII string
     /// - If the topic type name is not a valid ASCII string
     #[must_use]
-    pub fn subscribe<T, F>(&mut self, topic: &str, mut callback: F) -> bool
+    pub fn subscribe<T, F>(&mut self, topic: &str, callback: F) -> bool
     where
         T: GzMessage,
-        F: FnMut(T) + Send + 'static,
-    {
-        let (tx, rx) = bounded(CALLBACK_QUEUE_CAPACITY);
-        let (stop_tx, stop_rx) = bounded::<()>(0);
-        let worker = thread::Builder::new()
-            .name("gz-subscription".into())
-            .spawn(move || {
-                loop {
-                    select_biased! {
-                        recv(stop_rx) -> _ => break,
-                        recv(rx) -> msg => match msg {
-                            Ok(msg) => callback(msg),
-                            Err(_) => break,
-                        },
-                    }
-                }
-            });
-        match worker {
-            Ok(worker) => {
-                // Detach: shutdown must not wait for arbitrary user code.
-                drop(worker);
-                self.register_subscription(topic, tx, Some(stop_tx))
-            }
-            Err(e) => {
-                log::warn!(
-                    "Failed to start subscription worker for topic '{}': {}",
-                    topic,
-                    e
-                );
-                false
-            }
-        }
-    }
-
-    fn register_subscription<T>(
-        &mut self,
-        topic: &str,
-        tx: Sender<T>,
-        stop: Option<Sender<()>>,
-    ) -> bool
-    where
-        T: GzMessage,
+        F: Fn(T) + Send + Sync + 'static,
     {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
-        let callback = Box::new({
+        let callback = {
             let topic = topic.to_string();
             let expected_type = CString::new(T::GZ_TYPE_NAME).expect("Invalid type name");
 
@@ -333,27 +271,17 @@ impl Node {
                     }
 
                     match T::parse_from_bytes(slice::from_raw_parts(data.cast::<u8>(), data_size)) {
-                        Ok(msg) => match tx.try_send(msg) {
-                            Ok(()) | Err(TrySendError::Disconnected(_)) => {}
-                            Err(TrySendError::Full(_)) => {
-                                log::warn!(
-                                    "Incoming message from topic '{}' was dropped: subscription queue is full",
-                                    topic
-                                );
-                            }
-                        },
+                        Ok(msg) => callback(msg),
                         Err(e) => {
                             log::warn!("Failed to decode message from topic '{}': {}", topic, e);
                         }
                     }
                 },
             ) as SubCallbackBox
-        });
+        };
 
-        // Transfer the stable outer allocation to the native callback owner.
-        // The FFI consumes it on both success and failure, so Rust must not
-        // reconstruct or retain a Box after the call.
-        let user_data = Box::into_raw(callback).cast();
+        // Native ownership consumes the context even when registration fails.
+        let user_data = Box::into_raw(Box::new(callback)).cast();
         let ret = unsafe {
             ffi::nodeSubscribeOwned(
                 self.r#impl.as_mut(),
@@ -365,10 +293,7 @@ impl Node {
         };
 
         if ret {
-            self.subscriptions
-                .entry(topic.into())
-                .or_default()
-                .push(Subscription { _stop: stop });
+            self.subscriptions.insert(topic.into());
         }
 
         ret
@@ -376,12 +301,10 @@ impl Node {
 
     /// Unsubscribe from a topic. If the topic is not currently subscribed, this function does nothing.
     ///
-    /// On success, callback workers are asked to stop without waiting for an
-    /// already dispatched callback to finish. Pending worker messages are
-    /// discarded. Already acquired native callbacks retain their context and
-    /// may still enqueue messages for [`Self::subscribe_channel`] receivers.
-    /// Those receivers disconnect after the callbacks finish and the queue is
-    /// drained.
+    /// Does not wait for acquired native callbacks to finish. They retain their
+    /// context and may still invoke user callbacks or enqueue channel messages
+    /// after this call. Channel receivers disconnect after the last native owner
+    /// releases its sender and the remaining messages have been drained.
     ///
     /// # Examples
     ///
@@ -398,7 +321,7 @@ impl Node {
     pub fn unsubscribe(&mut self, topic: &str) -> bool {
         let ctopic_name = CString::new(topic).expect("Invalid topic name");
 
-        if !self.subscriptions.contains_key(topic) {
+        if !self.subscriptions.contains(topic) {
             log::warn!("No subscribers for topic '{}'", topic);
             return false;
         }

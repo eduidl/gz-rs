@@ -1,5 +1,4 @@
 use std::{
-    cell::Cell,
     sync::{
         Arc,
         atomic::{AtomicUsize, Ordering},
@@ -137,27 +136,26 @@ fn test_node_pub_sub_include_null_characters() {
 }
 
 #[test]
-fn test_node_subscribe_send_not_sync_callback() {
-    let partition = Uuid::new_v4().to_string();
-    let mut node = Node::with_partition(&partition).unwrap();
+fn test_node_subscribe_runs_on_local_publisher_thread() {
+    let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
     let (tx, rx) = crossbeam_channel::unbounded();
-
-    // Cell is Send but not Sync. Reassigning it also requires FnMut.
-    let mut count = Cell::new(0);
+    let count = AtomicUsize::new(0);
     assert!(node.subscribe("count", move |_: StringMsg| {
-        count = Cell::new(count.get() + 1);
-        let _ = tx.send(count.get());
+        tx.send((
+            count.fetch_add(1, Ordering::SeqCst) + 1,
+            thread::current().id(),
+        ))
+        .unwrap();
     }));
-
     let mut publisher = node.advertise::<StringMsg>("count").unwrap();
     for expected in 1..=3 {
         assert!(publisher.publish(&StringMsg::default()));
-        assert_eq!(rx.recv_timeout(Duration::from_secs(10)).unwrap(), expected);
+        assert_eq!(rx.try_recv().unwrap(), (expected, thread::current().id()));
     }
 }
 
 #[test]
-fn test_node_subscribe_serializes_concurrent_publishers() {
+fn test_node_subscribe_allows_concurrent_publishers() {
     const PUBLISHERS: usize = 4;
     const MESSAGES_PER_PUBLISHER: usize = 20;
     const TIMEOUT: Duration = Duration::from_secs(10);
@@ -167,18 +165,22 @@ fn test_node_subscribe_serializes_concurrent_publishers() {
     let active = Arc::new(AtomicUsize::new(0));
     let max_active = Arc::new(AtomicUsize::new(0));
     let (result_tx, result_rx) = crossbeam_channel::unbounded();
-    let mut count = 0;
+    let count = AtomicUsize::new(0);
+    let (entered_tx, entered_rx) = crossbeam_channel::unbounded();
+    let (release_tx, release_rx) = crossbeam_channel::bounded(PUBLISHERS);
     assert!(node.subscribe("count", {
         let active = Arc::clone(&active);
         let max_active = Arc::clone(&max_active);
         move |_: StringMsg| {
             let current = active.fetch_add(1, Ordering::SeqCst) + 1;
             max_active.fetch_max(current, Ordering::SeqCst);
-            // Give another publisher time to enter while this callback is active.
-            thread::sleep(Duration::from_millis(1));
-            count += 1;
+            let number = count.fetch_add(1, Ordering::SeqCst) + 1;
+            if number <= PUBLISHERS {
+                entered_tx.send(()).unwrap();
+                release_rx.recv_timeout(TIMEOUT).unwrap();
+            }
             active.fetch_sub(1, Ordering::SeqCst);
-            let _ = result_tx.send(count);
+            result_tx.send(number).unwrap();
         }
     }));
 
@@ -216,9 +218,21 @@ fn test_node_subscribe_serializes_concurrent_publishers() {
     for _ in 0..PUBLISHERS {
         start_tx.send(()).unwrap();
     }
-    for expected in 1..=PUBLISHERS * MESSAGES_PER_PUBLISHER {
-        assert_eq!(result_rx.recv_deadline(deadline).unwrap(), expected);
+    // All publishers must be able to enter before any of them is released.
+    for _ in 0..PUBLISHERS {
+        entered_rx.recv_deadline(deadline).unwrap();
     }
+    for _ in 0..PUBLISHERS {
+        release_tx.send(()).unwrap();
+    }
+    let mut received = (0..PUBLISHERS * MESSAGES_PER_PUBLISHER)
+        .map(|_| result_rx.recv_deadline(deadline).unwrap())
+        .collect::<Vec<_>>();
+    received.sort_unstable();
+    assert_eq!(
+        received,
+        (1..=PUBLISHERS * MESSAGES_PER_PUBLISHER).collect::<Vec<_>>()
+    );
     // Bound completion waits before joining, including native cleanup.
     for _ in 0..PUBLISHERS {
         done_rx.recv_deadline(deadline).unwrap();
@@ -227,7 +241,7 @@ fn test_node_subscribe_serializes_concurrent_publishers() {
         worker.join().unwrap();
     }
     assert_eq!(active.load(Ordering::SeqCst), 0);
-    assert_eq!(max_active.load(Ordering::SeqCst), 1);
+    assert_eq!(max_active.load(Ordering::SeqCst), PUBLISHERS);
     assert!(result_rx.is_empty());
 }
 
@@ -250,7 +264,7 @@ fn test_node_callback_can_publish_to_its_own_topic() {
         let partition = partition.clone();
         move |msg: StringMsg| {
             if msg.data == "initial" {
-                // Create non-Send Node/Publisher on the worker itself.
+                // Create non-Send Node/Publisher on the calling thread.
                 let mut node = Node::with_partition(&partition).unwrap();
                 let mut publisher = node.advertise::<StringMsg>("echo").unwrap();
                 assert!(publisher.publish(&StringMsg {
@@ -258,8 +272,7 @@ fn test_node_callback_can_publish_to_its_own_topic() {
                     ..Default::default()
                 }));
             }
-            // This must happen after nested publish returns, before the reply
-            // is processed by the next invocation of this same callback.
+            // The nested callback completes before the initial callback returns.
             let _ = tx.send((msg.data, thread::current().id()));
         }
     }));
@@ -268,12 +281,13 @@ fn test_node_callback_can_publish_to_its_own_topic() {
         data: "initial".into(),
         ..Default::default()
     }));
-    let (initial, worker) = rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-    assert_eq!(initial, "initial");
-    assert_ne!(worker, thread::current().id());
     assert_eq!(
-        rx.recv_timeout(CALLBACK_TIMEOUT).unwrap(),
-        ("reply".into(), worker)
+        rx.try_recv().unwrap(),
+        ("reply".into(), thread::current().id())
+    );
+    assert_eq!(
+        rx.try_recv().unwrap(),
+        ("initial".into(), thread::current().id())
     );
 }
 
@@ -282,76 +296,39 @@ fn test_node_channel_overflow_and_unsubscribe() {
     let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
     let rx = node.subscribe_channel::<StringMsg>("queue", 2).unwrap();
     let mut publisher = node.advertise::<StringMsg>("queue").unwrap();
-    for value in ["first", "second", "dropped"] {
+    for value in ["first", "second", "third"] {
         assert!(publisher.publish(&StringMsg {
             data: value.into(),
             ..Default::default()
         }));
     }
     assert!(node.unsubscribe("queue"));
-    assert_eq!(rx.recv_timeout(CALLBACK_TIMEOUT).unwrap().data, "first");
-    assert_eq!(rx.recv_timeout(CALLBACK_TIMEOUT).unwrap().data, "second");
+    assert_eq!(rx.try_recv().unwrap().data, "second");
+    assert_eq!(rx.try_recv().unwrap().data, "third");
     assert!(matches!(
-        rx.recv_timeout(CALLBACK_TIMEOUT),
-        Err(crossbeam_channel::RecvTimeoutError::Disconnected)
+        rx.try_recv(),
+        Err(async_channel::TryRecvError::Closed)
     ));
 }
 
 #[test]
-fn test_node_channel_zero_capacity_and_dropped_receiver() {
+#[should_panic(expected = "capacity cannot be zero")]
+fn test_node_channel_rejects_zero_capacity() {
     let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
-    let rx = node.subscribe_channel::<StringMsg>("queue", 0).unwrap();
+    let _ = node.subscribe_channel::<StringMsg>("queue", 0);
+}
+
+#[test]
+fn test_node_channel_dropped_receiver() {
+    let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
+    let rx = node.subscribe_channel::<StringMsg>("queue", 1).unwrap();
     let mut publisher = node.advertise::<StringMsg>("queue").unwrap();
-    // No waiting receiver: publication must return without blocking.
-    assert!(publisher.publish(&StringMsg::default()));
-    assert!(rx.is_empty());
     drop(rx);
     assert!(publisher.publish(&StringMsg::default()));
 }
 
 #[test]
-fn test_node_stops_workers_without_waiting_for_user_code() {
-    for unsubscribe in [true, false] {
-        let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
-        let (called_tx, called_rx) = crossbeam_channel::unbounded();
-        let (release_tx, release_rx) = crossbeam_channel::bounded(1);
-        let (dropped_tx, dropped_rx) = crossbeam_channel::bounded(1);
-        let guard = NotifyOnDrop(dropped_tx);
-        assert!(node.subscribe("blocked", move |msg: StringMsg| {
-            let _ = &guard;
-            let _ = called_tx.send(msg.data);
-            release_rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-        }));
-        let mut publisher = node.advertise::<StringMsg>("blocked").unwrap();
-        assert!(publisher.publish(&StringMsg {
-            data: "running".into(),
-            ..Default::default()
-        }));
-        assert_eq!(called_rx.recv_timeout(CALLBACK_TIMEOUT).unwrap(), "running");
-        assert!(publisher.publish(&StringMsg {
-            data: "pending".into(),
-            ..Default::default()
-        }));
-        if unsubscribe {
-            assert!(node.unsubscribe("blocked"));
-        }
-        drop(node);
-        // Cancellation does not join a callback waiting on this very thread.
-        assert!(matches!(
-            dropped_rx.try_recv(),
-            Err(crossbeam_channel::TryRecvError::Empty)
-        ));
-        release_tx.send(()).unwrap();
-        dropped_rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-        assert!(matches!(
-            called_rx.recv_timeout(CALLBACK_TIMEOUT),
-            Err(crossbeam_channel::RecvTimeoutError::Disconnected)
-        ));
-    }
-}
-
-#[test]
-fn test_node_failed_subscription_stops_worker() {
+fn test_node_failed_subscription_releases_captures() {
     let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
     let (tx, rx) = crossbeam_channel::bounded(1);
     let guard = NotifyOnDrop(tx);
@@ -363,63 +340,16 @@ fn test_node_failed_subscription_stops_worker() {
 }
 
 #[test]
-fn test_node_worker_queue_overflow_does_not_block_publish() {
+fn test_node_channel_processing_can_use_local_mutable_state() {
+    use std::{cell::RefCell, rc::Rc};
     let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
-    let (tx, rx) = crossbeam_channel::unbounded();
-    let (release_tx, release_rx) = crossbeam_channel::bounded(1);
-    assert!(node.subscribe("queue", move |msg: StringMsg| {
-        let is_first = msg.data == "first";
-        let _ = tx.send(msg.data);
-        if is_first {
-            release_rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-        }
-    }));
-    let mut publisher = node.advertise::<StringMsg>("queue").unwrap();
+    let rx = node.subscribe_channel::<StringMsg>("local", 2).unwrap();
+    let mut publisher = node.advertise::<StringMsg>("local").unwrap();
     assert!(publisher.publish(&StringMsg {
-        data: "first".into(),
+        data: "received".into(),
         ..Default::default()
     }));
-    assert_eq!(rx.recv_timeout(CALLBACK_TIMEOUT).unwrap(), "first");
-    // The documented capacity is 1024; the worker is blocked above.
-    for value in 0..1025 {
-        assert!(publisher.publish(&StringMsg {
-            data: value.to_string(),
-            ..Default::default()
-        }));
-    }
-    release_tx.send(()).unwrap();
-    let deadline = Instant::now() + CALLBACK_TIMEOUT;
-    for value in 0..1024 {
-        assert_eq!(rx.recv_deadline(deadline).unwrap(), value.to_string());
-    }
-    assert!(publisher.publish(&StringMsg {
-        data: "after overflow".into(),
-        ..Default::default()
-    }));
-    assert_eq!(rx.recv_deadline(deadline).unwrap(), "after overflow");
-}
-
-#[test]
-fn test_node_callback_panic_isolated_from_other_subscribers() {
-    let mut node = Node::with_partition(&Uuid::new_v4().to_string()).unwrap();
-    let (tx, rx) = crossbeam_channel::bounded(1);
-    let guard = NotifyOnDrop(tx);
-    assert!(node.subscribe("shared", move |_: StringMsg| {
-        let _ = &guard;
-        panic!("intentional subscription worker panic");
-    }));
-    // Adding another subscription must preserve the first FFI callback address.
-    let surviving_rx = node.subscribe_channel::<StringMsg>("shared", 2).unwrap();
-    let mut publisher = node.advertise::<StringMsg>("shared").unwrap();
-    assert!(publisher.publish(&StringMsg::default()));
-    rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-    surviving_rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-    // The dead worker's disconnected queue does not stop native delivery.
-    assert!(publisher.publish(&StringMsg::default()));
-    surviving_rx.recv_timeout(CALLBACK_TIMEOUT).unwrap();
-    assert!(node.unsubscribe("shared"));
-    assert!(matches!(
-        surviving_rx.recv_timeout(CALLBACK_TIMEOUT),
-        Err(crossbeam_channel::RecvTimeoutError::Disconnected)
-    ));
+    let state = Rc::new(RefCell::new(String::new()));
+    *state.borrow_mut() = rx.try_recv().unwrap().data;
+    assert_eq!(*state.borrow(), "received");
 }

@@ -1,6 +1,6 @@
-//! Regression tests for the native callback lifetime, not the user worker.
+//! Regression tests for channel and direct callback context lifetimes.
 //!
-//! A decoder parks inside the FFI callback. Its channel's only sender belongs
+//! A decoder or direct user callback parks inside the FFI callback. Its sender belongs
 //! to the callback closure, so disconnection at this point exposes premature
 //! destruction of that closure. Each probe runs in a child process and exits
 //! without resuming the decoder on failure, avoiding a return through freed
@@ -13,7 +13,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crossbeam_channel::{Receiver, RecvTimeoutError, Sender, TryRecvError, bounded};
+use async_channel::TryRecvError;
+use crossbeam_channel::{Receiver, Sender, bounded};
 use gz_msgs::stringmsg::StringMsg;
 use gz_msgs_common::{
     GzMessage,
@@ -26,6 +27,7 @@ const CHILD_MODE: &str = "GZ_RS_CALLBACK_LIFETIME_PROBE";
 const TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(Debug)]
 struct DecoderGate {
+    in_user_callback: bool,
     entered: Sender<()>,
     resume: Receiver<()>,
 }
@@ -81,10 +83,11 @@ impl Message for PausedStringMsg {
     fn parse_from_bytes(bytes: &[u8]) -> protobuf::Result<Self> {
         let message = StringMsg::parse_from_bytes(bytes)?;
         let gate = DECODER_GATE.get().unwrap();
-        gate.entered.send(()).unwrap();
-        // Only the isolated child runs this decoder. The probe resumes it only
-        // after verifying that teardown has retained the native context.
-        gate.resume.recv().unwrap();
+        if !gate.in_user_callback {
+            gate.entered.send(()).unwrap();
+            // Resume only after proving that teardown retained the context.
+            gate.resume.recv().unwrap();
+        }
         Ok(Self(message))
     }
 }
@@ -100,6 +103,19 @@ fn unsubscribe_keeps_in_flight_native_callback_alive() {
 #[test]
 fn node_drop_keeps_in_flight_native_callback_alive() {
     run_probe("node_drop_keeps_in_flight_native_callback_alive", "drop");
+}
+
+#[test]
+fn unsubscribe_keeps_direct_callback_alive() {
+    run_probe(
+        "unsubscribe_keeps_direct_callback_alive",
+        "unsubscribe_direct",
+    );
+}
+
+#[test]
+fn node_drop_keeps_direct_callback_alive() {
+    run_probe("node_drop_keeps_direct_callback_alive", "drop_direct");
 }
 
 fn run_probe(test_name: &str, mode: &str) {
@@ -146,16 +162,27 @@ fn probe_native_callback_lifetime(mode: &str) -> ! {
     // Gazebo snapshots both handlers before local delivery. While the first
     // decoder is parked, the other handler has been acquired but not invoked.
     // Both contexts must remain live, regardless of handler iteration order.
-    let receivers = [
-        node.subscribe_channel::<PausedStringMsg>("lifetime", 1)
-            .unwrap(),
-        node.subscribe_channel::<PausedStringMsg>("lifetime", 1)
-            .unwrap(),
-    ];
+    let direct = mode.ends_with("_direct");
+    let receivers: [async_channel::Receiver<PausedStringMsg>; 2] = std::array::from_fn(|_| {
+        if direct {
+            let (tx, rx) = async_channel::bounded(1);
+            assert!(node.subscribe("lifetime", move |msg: PausedStringMsg| {
+                let gate = DECODER_GATE.get().unwrap();
+                gate.entered.send(()).unwrap();
+                gate.resume.recv().unwrap();
+                tx.try_send(msg).unwrap();
+            }));
+            rx
+        } else {
+            node.subscribe_channel::<PausedStringMsg>("lifetime", 1)
+                .unwrap()
+        }
+    });
     let (entered_tx, entered_rx) = bounded(2);
     let (resume_tx, resume_rx) = bounded(2);
     DECODER_GATE
         .set(DecoderGate {
+            in_user_callback: direct,
             entered: entered_tx,
             resume: resume_rx,
         })
@@ -180,8 +207,8 @@ fn probe_native_callback_lifetime(mode: &str) -> ! {
     );
 
     match mode {
-        "unsubscribe" => assert!(node.unsubscribe("lifetime")),
-        "drop" => drop(node),
+        "unsubscribe" | "unsubscribe_direct" => assert!(node.unsubscribe("lifetime")),
+        "drop" | "drop_direct" => drop(node),
         _ => unreachable!(),
     }
 
@@ -201,15 +228,9 @@ fn probe_native_callback_lifetime(mode: &str) -> ! {
         resume_tx.send(()).unwrap();
     }
     for rx in receivers {
-        assert_eq!(
-            rx.recv_timeout(TIMEOUT).unwrap().0.data,
-            "pause during decoding"
-        );
+        assert_eq!(rx.recv_blocking().unwrap().0.data, "pause during decoding");
         assert!(
-            matches!(
-                rx.recv_timeout(TIMEOUT),
-                Err(RecvTimeoutError::Disconnected)
-            ),
+            matches!(rx.recv_blocking(), Err(async_channel::RecvError)),
             "The native callback's sender was retained after delivery finished"
         );
     }
