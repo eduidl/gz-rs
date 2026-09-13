@@ -1,4 +1,8 @@
-use std::{ffi::CString, time::Duration};
+use std::{
+    ffi::{CString, c_uint},
+    panic::{AssertUnwindSafe, catch_unwind},
+    time::Duration,
+};
 
 use gz_msgs::stringmsg::StringMsg;
 use gz_msgs_common::{GzMessage, protobuf::Message};
@@ -26,6 +30,60 @@ fn request_preserves_protobuf_bytes() {
         assert_eq!(response, request);
     }
     assert_eq!(service.calls(), 4);
+}
+
+#[test]
+fn request_accepts_maximum_timeout() {
+    let partition = Uuid::new_v4().to_string();
+    let service = TestService::new(&partition);
+    let mut node = Node::with_partition(&partition).unwrap();
+    let request = StringMsg {
+        data: "maximum timeout".into(),
+        ..Default::default()
+    };
+    let max_timeout = Duration::from_millis(u64::from(c_uint::MAX));
+
+    // The local service responds synchronously, without waiting for the timeout.
+    // Fractional milliseconds retain their existing truncation behavior.
+    for timeout in [max_timeout, max_timeout + Duration::from_nanos(999_999)] {
+        let (response, result) = node
+            .request::<_, StringMsg>("/echo", &request, timeout)
+            .expect("maximum representable timeout must be accepted");
+        assert!(result);
+        assert_eq!(response, request);
+    }
+    assert_eq!(service.calls(), 2);
+}
+
+#[test]
+fn request_panics_on_out_of_range_timeout_without_sending() {
+    let partition = Uuid::new_v4().to_string();
+    let service = TestService::new(&partition);
+    let mut node = Node::with_partition(&partition).unwrap();
+    let request = StringMsg::default();
+
+    // Establish availability so a missing service cannot mask a wrapped timeout.
+    assert!(
+        node.request::<_, StringMsg>("/echo", &request, Duration::from_secs(5))
+            .unwrap()
+            .1
+    );
+    assert_eq!(service.calls(), 1);
+
+    let max_ms = u64::from(c_uint::MAX);
+    for timeout in [
+        Duration::from_millis(max_ms + 1),
+        Duration::from_millis(max_ms + 5001),
+        Duration::MAX,
+    ] {
+        let panic = catch_unwind(AssertUnwindSafe(|| {
+            node.request::<_, StringMsg>("/echo", &request, timeout)
+        }))
+        .expect_err("out-of-range timeout must panic");
+        let message = panic.downcast_ref::<String>().unwrap();
+        assert!(message.contains("Timeout in milliseconds exceeds c_uint::MAX"));
+        assert_eq!(service.calls(), 1, "invalid timeout reached the service");
+    }
 }
 
 struct RawClient {
